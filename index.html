@@ -148,12 +148,17 @@ h2{font-size:clamp(27px,4vw,40px);margin:12px 0 12px;font-weight:800;letter-spac
 .ic svg{width:19px;height:19px;stroke:var(--gc,var(--green));fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .c-hero{grid-column:span 2;grid-row:span 2;--gc:var(--green)}
 .c-wide{grid-column:span 2;--gc:var(--sky)}
+.c-full{grid-column:span 4;--gc:var(--green)}
+@media(max-width:940px){.c-full{grid-column:span 2}}
 .c-a{--gc:var(--violet)}.c-b{--gc:var(--amber)}.c-c{--gc:var(--rose)}.c-d{--gc:var(--sky)}.c-e{--gc:var(--green)}
 /* 大卡里的迷你房态图 */
 .mini-rooms{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:16px}
 .mini-rooms i{height:34px;border-radius:7px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);font-style:normal;font-size:10px;color:var(--dim);background:rgba(255,255,255,.02)}
 .mini-rooms i.ok{border-color:rgba(61,220,151,.4);color:var(--green);background:rgba(61,220,151,.08)}
+.legend{display:flex;gap:16px;margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--dim);flex-wrap:wrap}
+.legend i{width:8px;height:8px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px}
+.legend i.g{background:var(--green)}.legend i.a{background:var(--amber)}.legend i.r{background:var(--rose)}.legend i.d{background:#3a4048}
 .mini-rooms i.due{border-color:rgba(246,197,107,.4);color:var(--amber);background:rgba(246,197,107,.07)}
 .mini-rooms i.bad{border-color:rgba(251,113,133,.4);color:var(--rose);background:rgba(251,113,133,.07)}
 /* 自动化流程条 */
@@ -333,7 +338,10 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
         <div class="mini-rooms">
           <i class="ok">101 ✓</i><i class="ok">102 ✓</i><i class="due">103 ¥</i><i class="ok">104 ✓</i>
           <i class="ok">201 ✓</i><i class="bad">202 ✗</i><i class="ok">203 ✓</i><i>206 空</i>
+          <i class="ok">301 ✓</i><i class="due">302 ¥</i><i class="ok">303 ✓</i><i class="ok">304 ✓</i>
+          <i class="ok">401 ✓</i><i class="ok">402 ✓</i><i class="bad">403 ✗</i><i>406 空</i>
         </div>
+        <div class="legend"><i class="g"></i>已收 <i class="a"></i>待收 <i class="r"></i>逾期 <i class="d"></i>空置</div>
         <div class="tag"><b>rooms</b> · leases · receipts · deposits</div>
       </div>
 
@@ -416,7 +424,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
       </div>
 
       <!-- 配置热更 -->
-      <div class="cell c-wide rv">
+      <div class="cell c-full rv">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M14.5 5.5a4 4 0 0 0-5.4 5.4L3 17v4h4l6.1-6.1a4 4 0 0 0 5.4-5.4l-2.7 2.7-2.3-2.3Z"/></svg></div>
         <h3>配置热更新 · 换硬件不求人</h3>
         <p>首次启动 6 步向导；系统设置里改路由 / 门禁 / 抄表的地址与凭据，<b style="color:var(--ink)">保存即生效</b>——换主路由、换账密不用重启服务。</p>
