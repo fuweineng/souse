@@ -335,7 +335,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
         <span class="meta"><b>Go</b> 单体服务</span>
         <span class="meta"><b>SQLite</b> 零配置</span>
         <span class="meta"><b>150+</b> MCP 工具</span>
-        <span class="meta"><b>1</b> 二进制部署</span>
+        <span class="meta"><b>单进程</b>部署</span>
       </div>
     </div>
 
@@ -439,7 +439,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
       <div class="cell c-c rv">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></svg></div>
         <h3>水电抄表</h3>
-        <p>拍照 OCR 识别表底，读数直通账单；用量曲线可查，异常人工复核。</p>
+        <p>拍照 OCR 识别表底，读数直通账单；历史读数可查，支持人工补抄纠错。</p>
         <div class="tag"><b>OCR</b> · meter reading</div>
       </div>
 
@@ -481,7 +481,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
       <div class="cell c-e rv">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3 4 6.5V12c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6.5Z"/><path d="M9 12l2 2 4-4.5"/></svg></div>
         <h3>私有化 · 自愈</h3>
-        <p>数据留在自己机器上：健康探测自动重启、6 小时热备、Tunnel 外网访问。</p>
+        <p>数据留在自己机器上：故障自动重启、6 小时热备、Tunnel 外网访问。</p>
         <div class="tag"><b>self-hosted</b> · backup</div>
       </div>
 
@@ -561,7 +561,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
 <span class="c"># 楼栋 → 收款码 → 水电表 → 路由 → 门禁 → 完成</span>
           </div>
         </div>
-        <div class="note"><b>部署形态：</b>任意 Linux 主机、PVE LXC 或 NAS 均可；外网访问用 Cloudflare Tunnel，数据每 6 小时热备到 <code>backups/</code>，健康探测失败自动重启。</div>
+        <div class="note"><b>部署形态：</b>任意 Linux 主机、PVE LXC 或 NAS 均可；外网访问用 Cloudflare Tunnel，数据每 6 小时热备到 <code>backups/</code>，进程故障自动重启。</div>
       </div>
       <ol class="why rv">
         <li><b>硬件凭据只填一次</b>路由、门禁、抄表的地址与账号集中在「系统设置」，保存即热生效，换设备不用重启。</li>
