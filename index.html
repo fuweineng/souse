@@ -38,7 +38,12 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
   --line:rgba(255,255,255,.075); --line-strong:rgba(255,255,255,.14);
   --gridline:rgba(255,255,255,.028);
   --ink:#eef2f6; --mut:#8b98a9; --dim:#5d6b7c;
-  --acc:#3ddc97; --sky-i:#56c8f5; --violet-i:#a78bfa; --amber-i:#f6c56b; --rose-i:#fb7185;
+  /* 品牌色阶：与 souse 应用 brand.css 同源（松绿，锚点 #3DDC97）。
+     700 = 浅色主色，500 = 深色主色，全部经 WCAG AA 4.5:1 校验。 */
+  --acc-50:#EEFBF6; --acc-100:#D9F7EA; --acc-200:#B7F0D7; --acc-300:#8BE9C0;
+  --acc-400:#6CE4B0; --acc-500:#3DDC97; --acc-600:#2BBB7C; --acc-700:#2D855F;
+  --acc-800:#246B4C; --acc-900:#1B5039; --acc-950:#1F5B41;
+  --acc:var(--acc-500); --sky-i:#56c8f5; --violet-i:#a78bfa; --amber-i:#f6c56b; --rose-i:#fb7185;
   --grad:linear-gradient(100deg,#3ddc97 5%,#56c8f5 55%,#a78bfa 95%);
   --g1:radial-gradient(closest-side,rgba(61,220,151,.16),transparent);
   --g2:radial-gradient(closest-side,rgba(86,200,245,.13),transparent);
@@ -57,7 +62,7 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
   --line:rgba(8,16,24,.09); --line-strong:rgba(8,16,24,.17);
   --gridline:rgba(8,16,24,.05);
   --ink:#0d1216; --mut:#55616f; --dim:#8a95a3;
-  --acc:#0b7c57; --sky-i:#17739f; --violet-i:#6a4de0; --amber-i:#a06a06; --rose-i:#d42d4b;
+  --acc:var(--acc-700); --sky-i:#17739f; --violet-i:#6a4de0; --amber-i:#a06a06; --rose-i:#d42d4b;
   --grad:linear-gradient(100deg,#0b7c57 5%,#17739f 55%,#6a4de0 95%);
   --g1:radial-gradient(closest-side,rgba(11,124,87,.2),transparent);
   --g2:radial-gradient(closest-side,rgba(23,115,159,.16),transparent);
