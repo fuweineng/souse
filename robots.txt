@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://souse.neng.page/sitemap.xml

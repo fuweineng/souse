@@ -20,7 +20,7 @@
 <meta name="twitter:title" content="Souse · 出租屋管理系统">
 <meta name="twitter:description" content="从签约到退租，整栋楼一个系统管完。房态 · 收租 · 门禁 · 网络 · 水电 · 小程序。">
 <meta name="twitter:image" content="https://souse.neng.page/og-image.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0e13'/%3E%3Cpath d='M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5' fill='none' stroke='%2334d399' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0e13'/%3E%3Cpath d='M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5' fill='none' stroke='%233DDC97' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
 <script>
 /* 主题预置：localStorage 优先，否则跟随系统；防闪烁 */
 (function(){try{var t=localStorage.getItem('souse-theme');
@@ -295,6 +295,28 @@ ol.why li b{color:var(--ink);font-weight:680;display:block;margin-bottom:2px;fon
 ol.why li::after{content:"";position:absolute;left:15px;top:36px;bottom:-10px;width:1px;background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 35%,transparent),transparent)}
 ol.why li:last-child::after{display:none}
 
+/* ───── 对比表 ───── */
+.cmp{overflow-x:auto;border:1px solid var(--line);border-radius:18px;background:var(--card)}
+.cmp table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:660px}
+.cmp th,.cmp td{padding:15px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.cmp thead th{font-family:var(--mono);font-size:11.5px;letter-spacing:1px;color:var(--mut);text-transform:uppercase;background:var(--tile);white-space:nowrap}
+.cmp thead th:last-child{color:var(--acc)}
+.cmp tbody th{font-weight:650;color:var(--ink);white-space:nowrap}
+.cmp td{color:var(--mut)}
+.cmp td:last-child{color:var(--ink);background:color-mix(in srgb,var(--acc) 6%,transparent)}
+.cmp tr:last-child th,.cmp tr:last-child td{border-bottom:none}
+
+/* ───── FAQ ───── */
+.faq{display:grid;gap:10px;max-width:820px}
+.faq details{border:1px solid var(--line);border-radius:14px;background:var(--card);transition:.2s}
+.faq details[open]{border-color:color-mix(in srgb,var(--acc) 35%,transparent);background:var(--card-hover)}
+.faq summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:650;font-size:15px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--mono);font-size:17px;color:var(--acc);flex:none}
+.faq details[open] summary::after{content:"−"}
+.faq p{padding:0 20px 18px;color:var(--mut);font-size:14.5px}
+.faq code{white-space:nowrap}
+
 /* ───── 尾部 CTA ───── */
 .cta-card{position:relative;border-radius:24px;padding:64px 40px;text-align:center;overflow:hidden;
   background:radial-gradient(120% 160% at 50% -20%,color-mix(in srgb,var(--acc) 17%,transparent),color-mix(in srgb,var(--sky-i) 7%,transparent) 45%,transparent 70%),var(--card);
@@ -321,13 +343,18 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
 .rv:nth-child(8){transition-delay:.42s}.rv:nth-child(9){transition-delay:.48s}
 @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.marquee,.shot-win,.float-card{animation:none}html{scroll-behavior:auto}}
 </style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Souse","alternateName":"souse","url":"https://souse.neng.page/","image":"https://souse.neng.page/og-image.png","description":"Souse 管出租屋和公寓：收租催缴、电子合同、门禁网络、水电抄表、住户小程序，开源免费，装在自己的电脑或 NAS 上。","applicationCategory":"BusinessApplication","operatingSystem":"自托管 / Docker"}
+</script>
+<!-- Cloudflare Web Analytics：部署前把下面 token 的 REPLACE_ME 换成 CF Web Analytics 面板里的真实 token -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "REPLACE_ME"}'></script>
 </head>
 <body>
 
 <nav id="nav">
   <div class="wrap nav-in">
     <a class="logo" href="#">
-      <svg viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="currentColor" opacity=".06"/><rect width="64" height="64" rx="15" fill="none" stroke="rgba(128,128,128,.35)"/><path d="M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5" fill="none" stroke="#34d399" stroke-width="5" stroke-linecap="round"/></svg>
+      <svg viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="currentColor" opacity=".06"/><rect width="64" height="64" rx="15" fill="none" stroke="rgba(128,128,128,.35)"/><path d="M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5" fill="none" stroke="#3DDC97" stroke-width="5" stroke-linecap="round"/></svg>
       Souse
     </a>
     <div class="nav-r">
@@ -336,12 +363,14 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
         <a href="#arch">怎么运转</a>
         <a href="#start">快速开始</a>
         <a href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用</a>
+        <a href="#compare">对比</a>
+        <a href="#faq">FAQ</a>
       </div>
       <button class="tt" id="tt" title="切换 黑 / 白 主题" aria-label="切换黑白主题">
         <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5 5l1.8 1.8M17.2 17.2 19 19M19 5l-1.8 1.8M6.8 17.2 5 19"/></svg>
         <svg class="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg>
       </button>
-      <a class="btn btn-g btn-s" href="https://github.com/fuweineng/souse" target="_blank" rel="noopener">★ GitHub</a>
+      <a class="btn btn-p btn-s" href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">试用 demo</a>
       <button class="tt mm" id="mm" title="菜单" aria-label="打开菜单" aria-expanded="false">
         <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
@@ -603,6 +632,97 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
   </div>
 </section>
 
+<!-- ═══════════ DEMO 怎么玩 ═══════════ -->
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="sec-k">Live Demo</div>
+      <h2>demo 怎么玩</h2>
+      <p class="sec-d">demo 是一个能真点的环境，里面是示例数据，随便点不会弄坏任何东西。三步看完它长什么样：</p>
+    </div>
+    <div class="steps">
+      <ol class="why rv">
+        <li><b>进去登录</b>点页面上任意一个「在线试用」按钮，账号 <code>trial</code>，密码 <code>souse2026</code>。</li>
+        <li><b>看房间矩阵和收租</b>首屏就是这个月的房态：哪间收了、哪间待收、哪间逾期一眼看到，点开房间能看账单和收据。</li>
+        <li><b>换住户视角看一遍</b>再看看住户那头长什么样：扫房间二维码进小程序，查账单、手机开门、报修都在里面。</li>
+      </ol>
+      <div class="rv">
+        <div class="note"><b>账号是公开的：</b><code>trial</code> / <code>souse2026</code>，官网直接写着，不用留手机号，也不用加销售微信。看完觉得顺手，再考虑装到自己机器上。</div>
+        <div class="cta">
+          <a class="btn btn-p" href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用 demo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 对比 ═══════════ -->
+<section id="compare">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="sec-k">Compare</div>
+      <h2>和你现在用的比，差在哪</h2>
+      <p class="sec-d">不比功能条数，只比每天都碰的几件事：花多少钱、欠费怎么办、住户从哪进来、数据归谁。</p>
+    </div>
+    <div class="cmp rv">
+      <table>
+        <thead>
+          <tr><th></th><th>Excel + 微信群</th><th>公寓 SaaS（寓小二 / 施王这类）</th><th>souse</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>费用</th><td>免费，但对账靠人</td><td>订阅费 + 常绑自家硬件</td><td>开源免费，自托管</td></tr>
+          <tr><th>欠费处理</th><td>手动催</td><td>断电 / 锁（绑硬件）</td><td>断网 / 门禁，用你已有的路由器 + 海康</td></tr>
+          <tr><th>住户入口</th><td>群里喊</td><td>装 App / 公众号</td><td>房间二维码，零安装</td></tr>
+          <tr><th>数据归属</th><td>你手里</td><td>平台云</td><td>数据在你自己机器上</td></tr>
+          <tr><th>硬件绑定</th><td>无</td><td>强（买我硬件）</td><td>不卖硬件、不碰资金</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sec-d rv" style="margin-top:20px;max-width:760px">souse 的差别不在功能多，在商业结构上：不卖硬件、不经手你的钱、数据留在你自己机器上——这三条，公寓 SaaS 想跟也跟不了。</p>
+  </div>
+</section>
+
+<!-- ═══════════ FAQ ═══════════ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="sec-k">FAQ</div>
+      <h2>你大概会问这几个</h2>
+      <p class="sec-d">都是被问过的，直说。</p>
+    </div>
+    <div class="faq rv">
+      <details open>
+        <summary>要收费吗？</summary>
+        <p>不收。开源免费，装在自己的机器上，没有订阅费。我们不卖硬件，也不经手你的租金。</p>
+      </details>
+      <details>
+        <summary>需要买什么硬件？</summary>
+        <p>不强制买任何东西。你现有的能接就接：爱快、MikroTik 路由器，海康门禁，大华录像机，水电表都能配。以后想接再接，不接也能用。</p>
+      </details>
+      <details>
+        <summary>没有海康门禁能用吗？</summary>
+        <p>能。纯软件模式照样用：收租、账单、合同、押金、住户小程序这些一个不少，门禁和网络控制等你有设备了再开。</p>
+      </details>
+      <details>
+        <summary>数据放哪？</summary>
+        <p>在你自己机器上——家里电脑、NAS 或者你自己的云服务器。平台拿不到你的数据，系统每 6 小时自动备份一份。</p>
+      </details>
+      <details>
+        <summary>住户要装 App 吗？</summary>
+        <p>不用。房间贴一张二维码，微信扫一扫就进小程序，查账单、手机开门、充值、报修都在里面。</p>
+      </details>
+      <details>
+        <summary>升级会丢数据吗？</summary>
+        <p>不会。升级只是换程序版本，数据还在原来的地方；另外每 6 小时有一份自动备份兜底。</p>
+      </details>
+      <details>
+        <summary>支持哪些部署方式？</summary>
+        <p>Docker Compose 三行命令就能起来，电脑、NAS、云服务器都行；外网远程访问走一条 Cloudflare 隧道。装好后页面里有 6 步向导，一步步把楼栋、收款码、水电表、路由、门禁配齐。</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════ 尾部 CTA ═══════════ -->
 <section style="padding-top:20px">
   <div class="wrap">
@@ -612,8 +732,8 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
       <h2 style="position:relative">把 Excel 和路由器后台，<br>收进一个系统</h2>
       <p style="position:relative">数据留在自己手里。先拿一栋楼试试，顺手了再把整套搬过来。</p>
       <div class="cta" style="position:relative">
-        <a class="btn btn-p" href="#start">三行命令启动</a>
-        <a class="btn btn-g" href="https://github.com/fuweineng/souse" target="_blank" rel="noopener">★ 去 GitHub</a>
+        <a class="btn btn-p" href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用 demo</a>
+        <a class="btn btn-g" href="#start">三行命令启动</a>
       </div>
     </div>
     <!-- 在线试用：预置演示楼栋的假数据，账号公开（30 天有效，可续） -->
@@ -632,7 +752,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
   <div class="wrap foot-in">
     <div>© 2026 Souse · 出租屋管理系统</div>
     <div class="status"><i></i>souse.neng.page · 持续在线</div>
-    <div><a href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用</a> · <a href="https://github.com/fuweineng/souse" target="_blank" rel="noopener">GitHub</a> · <a href="#features">功能</a> · <a href="#arch">怎么运转</a></div>
+    <div><a href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用</a> · <a href="https://github.com/fuweineng/souse" target="_blank" rel="noopener">GitHub</a> · <a href="#features">功能</a> · <a href="#arch">怎么运转</a> · <a href="#compare">对比</a> · <a href="#faq">FAQ</a></div>
   </div>
 </footer>
 
@@ -648,7 +768,7 @@ addEventListener('scroll',()=>nav.classList.toggle('on',scrollY>24),{passive:tru
     const open=nav.classList.toggle('open');
     mm.setAttribute('aria-expanded',String(open));
   });
-  document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',close));
+  document.querySelectorAll('.nav-links a,.nav-r .btn').forEach(a=>a.addEventListener('click',close));
   document.addEventListener('click',e=>{if(nav.classList.contains('open')&&!nav.contains(e.target))close()});
   addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 })();
