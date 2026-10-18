@@ -342,6 +342,113 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
 .rv:nth-child(5){transition-delay:.24s}.rv:nth-child(6){transition-delay:.3s}.rv:nth-child(7){transition-delay:.36s}
 .rv:nth-child(8){transition-delay:.42s}.rv:nth-child(9){transition-delay:.48s}
 @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.marquee,.shot-win,.float-card{animation:none}html{scroll-behavior:auto}}
+
+/* ───── Playground 交互演示（复用主题变量，亮/暗通用） ───── */
+#playground{scroll-margin-top:72px}
+.pg-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;
+  color:var(--amber-i);border:1px solid color-mix(in srgb,var(--amber-i) 42%,transparent);background:color-mix(in srgb,var(--amber-i) 8%,transparent);
+  border-radius:99px;padding:3px 10px;vertical-align:middle;white-space:nowrap}
+.pg-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber-i);box-shadow:0 0 6px var(--amber-i);flex:none}
+.pg-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:14px;align-items:stretch}
+@media(max-width:940px){.pg-grid{grid-template-columns:1fr}}
+.pg-card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.pg-card h3{font-size:15.5px;font-weight:720;letter-spacing:-.2px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pg-card h3 .pg-auto{margin-left:auto}
+.pg-sub{font-size:12.5px;color:var(--mut);margin-top:5px;line-height:1.6}
+.pg-video{grid-row:span 2;display:flex;flex-direction:column}
+.pg-full{grid-column:1/-1}
+@media(max-width:940px){.pg-video{grid-row:auto}.pg-full{grid-column:auto}}
+/* 假监控画面 */
+.pg-cam{position:relative;border-radius:12px;overflow:hidden;background:#05070a;border:1px solid rgba(255,255,255,.09);aspect-ratio:16/10;margin-top:12px}
+.pg-cam canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pg-cam::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.30) 0 1px,transparent 1px 3px)}
+.pg-live{position:absolute;right:9px;top:8px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:1px;color:#fff;background:rgba(214,48,58,.86);border-radius:5px;padding:3px 8px}
+.pg-live i{width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.4s infinite}
+.pg-cam-ch{position:absolute;left:10px;top:8px;z-index:2;font-family:var(--mono);font-size:10.5px;color:#d5ebde;text-shadow:0 1px 3px #000;letter-spacing:.5px}
+.pg-cam-tc{position:absolute;left:10px;bottom:8px;z-index:2;font-family:var(--mono);font-size:10.5px;color:#d5ebde;text-shadow:0 1px 3px #000;font-variant-numeric:tabular-nums}
+.pg-cam-rec{position:absolute;right:10px;bottom:8px;z-index:2;font-family:var(--mono);font-size:10.5px;color:#ff9aa4;text-shadow:0 1px 3px #000}
+.pg-cam-rec::before{content:"● ";animation:pulse 1.4s infinite}
+.pg-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.pg-thumbs .pg-cam{aspect-ratio:4/3;margin-top:0}
+.pg-thumbs .pg-cam-ch{font-size:9px;top:5px;left:6px}
+.pg-thumbs .pg-live,.pg-thumbs .pg-cam-tc,.pg-thumbs .pg-cam-rec{display:none}
+/* 表单控件 */
+.pg-field{display:flex;flex-direction:column;gap:5px;margin-top:12px}
+.pg-field>label{font-size:11.5px;color:var(--dim);font-family:var(--mono);letter-spacing:.4px}
+.pg-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pg-in{font-family:inherit;font-size:14px;color:var(--ink);background:var(--tile);border:1px solid var(--line-strong);border-radius:10px;
+  padding:9px 12px;outline:none;transition:.18s;min-width:0;flex:1}
+select.pg-in{cursor:pointer}
+.pg-in:focus{border-color:color-mix(in srgb,var(--acc) 55%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 14%,transparent)}
+.pg-btn{font-family:inherit;font-weight:640;font-size:13px;border-radius:10px;padding:9px 15px;cursor:pointer;border:1px solid var(--line-strong);
+  background:var(--chip);color:var(--ink);transition:.16s;white-space:nowrap;flex:none}
+.pg-btn:hover{border-color:color-mix(in srgb,var(--acc) 50%,transparent);background:var(--card-hover)}
+.pg-btn:active{transform:translateY(1px)}
+.pg-btn.pri{background:linear-gradient(135deg,#3ddc97,#2bb9d9);color:#04150e;border-color:transparent;box-shadow:0 6px 20px -10px rgba(61,220,151,.6)}
+.pg-btn.pri:hover{transform:translateY(-1px)}
+.pg-btn.ghost{background:transparent;font-family:var(--mono);font-size:12px;padding:8px 13px}
+/* 读数 / 列表 / 余额 */
+.pg-readout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.pg-ro{background:var(--tile);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.pg-ro .l{font-size:10px;color:var(--dim);font-family:var(--mono);letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg-ro .v{font-size:16px;font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.3px;white-space:nowrap}
+.pg-ro .v.a{color:var(--amber-i)}.pg-ro .v.g{color:var(--acc)}
+.pg-hint{font-size:12px;color:var(--mut);margin-top:8px;min-height:17px;transition:.2s}
+.pg-hint.ok{color:var(--acc)}.pg-hint.err{color:var(--rose-i)}
+.pg-list{margin-top:12px;display:flex;flex-direction:column;gap:6px;max-height:158px;overflow-y:auto;scrollbar-width:thin}
+.pg-list .row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;border:1px solid var(--line);
+  background:var(--tile);border-radius:9px;padding:7px 11px;animation:pgIn .3s cubic-bezier(.2,.7,.2,1)}
+.pg-list .row .m{color:var(--mut);font-family:var(--mono);font-size:11px;flex:none}
+.pg-list .row .amt{font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+.pg-list .row .amt.g{color:var(--acc)}.pg-list .row .amt.r{color:var(--rose-i)}.pg-list .row .amt.a{color:var(--amber-i)}
+.pg-list .row.sys{background:color-mix(in srgb,var(--rose-i) 7%,transparent);border-color:color-mix(in srgb,var(--rose-i) 30%,transparent);color:var(--rose-i)}
+.pg-list .row.sys.ok{background:color-mix(in srgb,var(--acc) 8%,transparent);border-color:color-mix(in srgb,var(--acc) 30%,transparent);color:var(--acc)}
+.pg-empty{font-size:12px;color:var(--dim);padding:14px;text-align:center;border:1px dashed var(--line-strong);border-radius:10px;margin-top:12px}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.pg-bal{margin-top:12px}
+.pg-bal .track{height:10px;border-radius:99px;background:var(--tile);border:1px solid var(--line);overflow:hidden}
+.pg-bal .fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#3ddc97,#2bb9d9);transition:width .7s cubic-bezier(.2,.7,.2,1)}
+.pg-bal .fill.low{background:linear-gradient(90deg,#f6c56b,#fb7185)}
+.pg-bal .meta{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:7px}
+.pg-bal .meta b{color:var(--ink);font-size:12.5px;font-variant-numeric:tabular-nums}
+/* 场景切换 */
+.pg-scenes{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.pg-scene{font-family:inherit;font-size:12.5px;font-weight:600;border-radius:99px;padding:7px 15px;cursor:pointer;border:1px solid var(--line-strong);
+  background:var(--chip);color:var(--mut);transition:.16s}
+.pg-scene:hover{color:var(--ink);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.pg-scene.on{background:color-mix(in srgb,var(--acc) 13%,transparent);border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--acc)}
+.pg-matrix{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:16px}
+@media(max-width:680px){.pg-matrix{grid-template-columns:repeat(3,1fr)}}
+.pg-room{border-radius:9px;padding:8px 5px 7px;border:1px solid var(--line);background:var(--tile);text-align:center;transition:.25s;min-width:0}
+.pg-room .no{font-family:var(--mono);font-size:10px;color:var(--mut);white-space:nowrap}
+.pg-room .st{font-size:9px;margin-top:2px;font-weight:700;letter-spacing:.4px;color:var(--dim);white-space:nowrap}
+.pg-room[data-s=ok]{border-color:color-mix(in srgb,var(--acc) 40%,transparent);background:color-mix(in srgb,var(--acc) 9%,transparent)}
+.pg-room[data-s=ok] .st{color:var(--acc)}
+.pg-room[data-s=due]{border-color:color-mix(in srgb,var(--amber-i) 42%,transparent);background:color-mix(in srgb,var(--amber-i) 9%,transparent)}
+.pg-room[data-s=due] .st{color:var(--amber-i)}
+.pg-room[data-s=bad]{border-color:color-mix(in srgb,var(--rose-i) 42%,transparent);background:color-mix(in srgb,var(--rose-i) 9%,transparent)}
+.pg-room[data-s=bad] .st{color:var(--rose-i)}
+.pg-room[data-s=repair]{border-color:color-mix(in srgb,var(--violet-i) 42%,transparent);background:color-mix(in srgb,var(--violet-i) 9%,transparent)}
+.pg-room[data-s=repair] .st{color:var(--violet-i)}
+.pg-room[data-s=pass]{border-color:color-mix(in srgb,var(--sky-i) 45%,transparent);background:color-mix(in srgb,var(--sky-i) 10%,transparent)}
+.pg-room[data-s=pass] .st{color:var(--sky-i)}
+.pg-room.on{transform:translateY(-2px);box-shadow:0 0 0 2px color-mix(in srgb,var(--ink) 45%,transparent),0 8px 20px -10px var(--ink)}
+.pg-room.on .no{color:var(--ink);font-weight:700}
+.legend i.v{background:var(--violet-i)}.legend i.s{background:var(--sky-i)}
+.pg-detail{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+@media(max-width:940px){.pg-detail{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.pg-detail{grid-template-columns:1fr}}
+.pg-box{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:12px 14px;min-width:0}
+.pg-box .bt{font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;color:var(--dim);text-transform:uppercase;margin-bottom:7px}
+.pg-kv{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:3px 0;min-width:0}
+.pg-kv .k{color:var(--mut);flex:none}
+.pg-kv .v{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg-kv .v.g{color:var(--acc)}.pg-kv .v.a{color:var(--amber-i)}.pg-kv .v.r{color:var(--rose-i)}
+.pg-note{font-size:12px;color:var(--dim);margin-top:14px;line-height:1.7;border-top:1px dashed var(--line);padding-top:12px}
+.pg-note b{color:var(--ink)}
+@media(prefers-reduced-motion:reduce){.pg-live i,.pg-cam-rec::before{animation:none}}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Souse","alternateName":"souse","url":"https://souse.neng.page/","image":"https://souse.neng.page/og-image.png","description":"Souse 管出租屋和公寓：收租催缴、电子合同、门禁网络、水电抄表、住户小程序，开源免费，装在自己的电脑或 NAS 上。","applicationCategory":"BusinessApplication","operatingSystem":"自托管 / Docker"}
@@ -362,6 +469,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
         <a href="#features">功能</a>
         <a href="#arch">怎么运转</a>
         <a href="#start">快速开始</a>
+        <a href="#playground">演示</a>
         <a href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用</a>
         <a href="#compare">对比</a>
         <a href="#faq">FAQ</a>
@@ -656,6 +764,105 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
   </div>
 </section>
 
+<!-- ═══════════ PLAYGROUND 交互演示 ═══════════ -->
+<section id="playground">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="sec-k">Playground</div>
+      <h2>不装不配，先点着看看 <span class="pg-badge">模拟演示</span></h2>
+      <p class="sec-d">下面所有画面、读数、账单，都是浏览器里现造的 <b>模拟数据</b>——不联网、不碰任何真实房源。想看可登录的真实环境，<a href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener" style="color:var(--acc);border-bottom:1px solid color-mix(in srgb,var(--acc) 40%,transparent)">去 demo.neng.page →</a></p>
+    </div>
+
+    <div class="pg-grid rv">
+      <!-- 1. 虚假视频流（监控） -->
+      <div class="pg-card pg-video">
+        <h3>视频监控 <span class="pg-badge">演示画面</span></h3>
+        <p class="pg-sub"><span id="pgCamTitle">CH01 大门</span> · 本地 NVR 接入，画面为模拟生成</p>
+        <div class="pg-cam">
+          <canvas id="pgCanvasMain" width="640" height="400" aria-label="模拟监控画面"></canvas>
+          <div class="pg-cam-ch" id="pgCamCh">CH01 大门</div>
+          <span class="pg-live"><i></i>LIVE</span>
+          <div class="pg-cam-tc" id="pgCamTc">--</div>
+          <div class="pg-cam-rec">REC</div>
+        </div>
+        <div class="pg-thumbs">
+          <div class="pg-cam"><canvas id="pgCanvas2" width="320" height="240"></canvas><div class="pg-cam-ch">CH02 走廊</div></div>
+          <div class="pg-cam"><canvas id="pgCanvas3" width="320" height="240"></canvas><div class="pg-cam-ch">CH03 电梯厅</div></div>
+          <div class="pg-cam"><canvas id="pgCanvas4" width="320" height="240"></canvas><div class="pg-cam-ch">CH04 后门</div></div>
+        </div>
+      </div>
+
+      <!-- 2. 手动抄表（模拟） -->
+      <div class="pg-card">
+        <h3>水电抄表 <span class="pg-badge">模拟</span></h3>
+        <p class="pg-sub">选房间 → 拍照识别读数 → 自动算费进账单</p>
+        <div class="pg-field">
+          <label for="pgMeterRoom">房间</label>
+          <select id="pgMeterRoom" class="pg-in"></select>
+        </div>
+        <div class="pg-readout">
+          <div class="pg-ro"><div class="l">上次读数</div><div class="v" id="pgMeterLast">—</div></div>
+          <div class="pg-ro"><div class="l">本次读数</div><div class="v a" id="pgMeterNow">—</div></div>
+          <div class="pg-ro"><div class="l">单价（度）</div><div class="v" id="pgMeterPrice">¥0.65</div></div>
+        </div>
+        <div class="pg-field">
+          <label for="pgMeterInput">本次电表读数（度）</label>
+          <div class="pg-row">
+            <input id="pgMeterInput" class="pg-in" type="number" inputmode="decimal" placeholder="输入本次读数">
+            <button class="pg-btn" id="pgOcr">拍照识别</button>
+          </div>
+        </div>
+        <div class="pg-row" style="margin-top:10px">
+          <button class="pg-btn pri" id="pgMeterSubmit">生成账单</button>
+        </div>
+        <div class="pg-hint" id="pgMeterHint"></div>
+        <div class="pg-list" id="pgBills"></div>
+      </div>
+
+      <!-- 3. 电子充值（模拟） -->
+      <div class="pg-card">
+        <h3>电子充值 <span class="pg-badge">模拟</span></h3>
+        <p class="pg-sub">余额不足自动断网 / 断门禁，充值后自动恢复</p>
+        <div class="pg-bal">
+          <div class="track"><div class="fill" id="pgBalFill"></div></div>
+          <div class="meta"><span>余额 <b id="pgBalVal">¥0.00</b></span><span id="pgBalState">正常</span></div>
+        </div>
+        <div class="pg-row" style="margin-top:12px">
+          <input id="pgRechargeInput" class="pg-in" type="number" inputmode="decimal" placeholder="充值金额（元）">
+          <button class="pg-btn pri" id="pgRechargeBtn">充值</button>
+        </div>
+        <div class="pg-row" style="margin-top:8px">
+          <button class="pg-btn ghost" data-amt="50">+¥50</button>
+          <button class="pg-btn ghost" data-amt="100">+¥100</button>
+          <button class="pg-btn ghost" data-amt="200">+¥200</button>
+          <button class="pg-btn ghost" id="pgForceDue">模拟欠费</button>
+        </div>
+        <div class="pg-list" id="pgRechargeLog"></div>
+      </div>
+
+      <!-- 4. 全场景切换 -->
+      <div class="pg-card pg-full">
+        <h3>全场景切换 <span class="pg-badge">模拟数据</span>
+          <button class="pg-btn ghost pg-auto" id="pgAuto">▶ 一键自动演示</button>
+        </h3>
+        <p class="pg-sub">同一栋楼，换个状态，房态 / 住户 / 账单 / 水电 / 通行 / 监控 一起跟着变</p>
+        <div class="pg-scenes" id="pgScenes"></div>
+        <div class="pg-matrix" id="pgMatrix"></div>
+        <div class="legend">
+          <i class="d"></i>空置 <i class="g"></i>在租 <i class="a"></i>即将到期 <i class="r"></i>欠费逾期 <i class="v"></i>报修中 <i class="s"></i>门禁通行
+        </div>
+        <div class="pg-detail">
+          <div class="pg-box"><div class="bt">住户卡</div><div id="pgResident"></div></div>
+          <div class="pg-box"><div class="bt">账单</div><div id="pgBill"></div></div>
+          <div class="pg-box"><div class="bt">水电余额</div><div id="pgUtility"></div></div>
+          <div class="pg-box"><div class="bt">通行记录</div><div id="pgAccess"></div></div>
+        </div>
+        <p class="pg-note" id="pgSceneNote"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════ 对比 ═══════════ -->
 <section id="compare">
   <div class="wrap">
@@ -787,6 +994,312 @@ document.querySelectorAll('.rv').forEach(el=>io.observe(el));
     try{localStorage.setItem('souse-theme',next)}catch(e){}
     tt.setAttribute('aria-pressed',String(next==='light'));
   });
+})();
+</script>
+
+<script>
+/* ═══════════ Playground 交互演示（纯前端模拟：无网络请求、无外部资源、内存状态） ═══════════ */
+(function(){
+  'use strict';
+  if(!document.getElementById('playground'))return;
+  var $=function(id){return document.getElementById(id)};
+  var money=function(n){return '¥'+Number(n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})};
+  var clock=function(){
+    var d=new Date(),p=function(n){return String(n).padStart(2,'0')};
+    return p(d.getHours())+':'+p(d.getMinutes());
+  };
+  var stamp=function(){
+    var d=new Date(),p=function(n){return String(n).padStart(2,'0')};
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  };
+  var reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ─────────── 1. 监控画面：Canvas 合成假视频流 ─────────── */
+  var cams=[
+    {cv:$('pgCanvasMain'),ch:'CH01 大门',live:true},
+    {cv:$('pgCanvas2'),ch:'CH02 走廊'},
+    {cv:$('pgCanvas3'),ch:'CH03 电梯厅'},
+    {cv:$('pgCanvas4'),ch:'CH04 后门'}
+  ].filter(function(c){return c.cv});
+  function fit(cv){
+    var r=cv.getBoundingClientRect();
+    var w=Math.max(160,Math.round(r.width)||320),h=Math.max(110,Math.round(r.height)||200);
+    var dpr=Math.min(window.devicePixelRatio||1,2);
+    if(cv.width!==w*dpr||cv.height!==h*dpr){cv.width=w*dpr;cv.height=h*dpr;}
+    var ctx=cv.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {ctx:ctx,w:w,h:h};
+  }
+  function drawFeed(ctx,w,h,t){
+    ctx.clearRect(0,0,w,h);
+    var bg=ctx.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0e1a16');bg.addColorStop(1,'#040807');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+    /* 门框轮廓 */
+    ctx.fillStyle='rgba(160,210,190,.05)';
+    ctx.fillRect(w*.28,h*.30,w*.44,h*.62);
+    ctx.strokeStyle='rgba(150,220,190,.12)';ctx.lineWidth=1;
+    ctx.strokeRect(w*.28,h*.30,w*.44,h*.62);
+    /* 移动扫描带 */
+    var by=((t*40)%(h+80))-40;
+    var sg=ctx.createLinearGradient(0,by,0,by+60);
+    sg.addColorStop(0,'rgba(120,240,190,0)');sg.addColorStop(.5,'rgba(120,240,190,.08)');sg.addColorStop(1,'rgba(120,240,190,0)');
+    ctx.fillStyle=sg;ctx.fillRect(0,by,w,60);
+    /* 噪点 */
+    var dots=Math.round(w*h/1500);
+    for(var i=0;i<dots;i++){
+      ctx.fillStyle='rgba(170,230,205,'+(Math.random()*.06).toFixed(3)+')';
+      ctx.fillRect(Math.random()*w,Math.random()*h,2,2);
+    }
+  }
+  var playing=false,raf=0,lastSmall=0;
+  function frame(now){
+    if(!playing)return;
+    var f=fit(cams[0].cv);drawFeed(f.ctx,f.w,f.h,now/1000);
+    if(now-lastSmall>420){lastSmall=now;for(var i=1;i<cams.length;i++){var s=fit(cams[i].cv);drawFeed(s.ctx,s.w,s.h,now/1000+i);}}
+    var tc=$('pgCamTc');if(tc)tc.textContent=stamp();
+    /* 缩略图时间戳由主时间驱动；小图不显示时间戳 */
+    raf=requestAnimationFrame(frame);
+  }
+  function startCam(){
+    if(reduced){for(var i=0;i<cams.length;i++){var f=fit(cams[i].cv);drawFeed(f.ctx,f.w,f.h,1+i);}var tc=$('pgCamTc');if(tc)tc.textContent=stamp();return;}
+    if(!playing){playing=true;lastSmall=0;raf=requestAnimationFrame(frame);}
+  }
+  function stopCam(){playing=false;cancelAnimationFrame(raf);}
+  if('IntersectionObserver' in window){
+    var camIO=new IntersectionObserver(function(es){es.forEach(function(e){e.isIntersecting?startCam():stopCam();})},{threshold:.05});
+    camIO.observe($('pgCanvasMain'));
+  }else startCam();
+
+  /* ─────────── 2. 手动抄表（模拟） ─────────── */
+  var meterRooms={
+    'A-101':{last:1230.5},'A-102':{last:980.0},'A-103':{last:1520.0},
+    'A-202':{last:2100.0},'B-305':{last:640.0}
+  };
+  var PRICE=0.65;
+  var sel=$('pgMeterRoom');
+  Object.keys(meterRooms).forEach(function(r){var o=document.createElement('option');o.value=r;o.textContent=r;sel.appendChild(o);});
+  function meterLoad(){
+    var r=sel.value,st=meterRooms[r];
+    $('pgMeterLast').textContent=st.last.toFixed(1);
+    $('pgMeterNow').textContent='—';
+    $('pgMeterInput').value='';
+    $('pgMeterHint').className='pg-hint';$('pgMeterHint').textContent='';
+  }
+  sel.addEventListener('change',meterLoad);
+  $('pgOcr').addEventListener('click',function(){
+    var st=meterRooms[sel.value];
+    var hint=$('pgMeterHint');
+    hint.className='pg-hint';hint.textContent='识别中…';
+    var btn=this;btn.disabled=true;
+    setTimeout(function(){
+      var guess=Math.round(st.last+(20+Math.random()*60));
+      $('pgMeterInput').value=guess;
+      hint.className='pg-hint ok';hint.textContent='识别到 '+guess+' 度（模拟 OCR）';
+      btn.disabled=false;
+    },420);
+  });
+  function addBill(room,usage,cost,isFirst){
+    var list=$('pgBills');
+    if(isFirst){list.innerHTML='';}
+    var row=document.createElement('div');row.className='row';
+    row.innerHTML='<span>'+room+' · 电费 '+usage+' 度</span><span class="amt g">'+money(cost)+'</span>';
+    list.insertBefore(row,list.firstChild);
+  }
+  var billCount=0;
+  $('pgMeterSubmit').addEventListener('click',function(){
+    var room=sel.value,st=meterRooms[room];
+    var hint=$('pgMeterHint');
+    var now=parseFloat($('pgMeterInput').value);
+    if(!isFinite(now)||now<=st.last){
+      hint.className='pg-hint err';
+      hint.textContent=(!isFinite(now)?'请先输入本次读数':'读数需大于上次读数 '+st.last.toFixed(1)+' 度');
+      return;
+    }
+    var usage=Math.round((now-st.last)*10)/10;
+    var cost=Math.round(usage*PRICE*100)/100;
+    st.last=now;                       /* 该房上次读数前移 */
+    $('pgMeterLast').textContent=now.toFixed(1);
+    $('pgMeterNow').textContent=now.toFixed(1);
+    addBill(room,usage,cost,billCount===0);billCount++;
+    hint.className='pg-hint ok';
+    hint.textContent=room+' 本月电费 '+money(cost)+'（用量 '+usage+' 度 × '+money(PRICE)+'）已入账';
+  });
+  meterLoad();
+
+  /* ─────────── 3. 电子充值（模拟） ─────────── */
+  var bal=12.50,due=false,balMax=200;
+  function balRender(){
+    var pct=Math.max(0,Math.min(1,bal/balMax))*100;
+    $('pgBalFill').style.width=pct+'%';
+    $('pgBalFill').classList.toggle('low',bal<50);
+    $('pgBalVal').textContent=money(bal);
+    var st=$('pgBalState');
+    if(bal<=0){st.textContent='欠费 · 已断网 · 断门禁';st.style.color='var(--rose-i)';}
+    else if(bal<50){st.textContent='余额偏低';st.style.color='var(--amber-i)';}
+    else{st.textContent='正常';st.style.color='var(--acc)';}
+  }
+  function logRow(html,cls){
+    var list=$('pgRechargeLog');
+    var row=document.createElement('div');row.className='row'+(cls?' '+cls:'');
+    row.innerHTML=html;
+    list.insertBefore(row,list.firstChild);
+    while(list.children.length>8)list.removeChild(list.lastChild);
+  }
+  function setBal(v){
+    var was=bal;bal=Math.round(v*100)/100;
+    if(was>0&&bal<=0){due=true;logRow('<span>余额不足 → 系统自动断网 / 断门禁</span>','sys');}
+    else if(was<=0&&bal>0){due=false;logRow('<span>已充值 → 网络与门禁自动恢复</span>','sys ok');}
+    balRender();
+  }
+  function doRecharge(amt){
+    if(!isFinite(amt)||amt<=0)return;
+    setBal(bal+amt);
+    logRow('<span>充值成功 +'+money(amt)+'</span><span class="m">'+clock()+'</span>');
+  }
+  $('pgRechargeBtn').addEventListener('click',function(){
+    var amt=parseFloat($('pgRechargeInput').value);
+    if(!isFinite(amt)||amt<=0){$('pgRechargeInput').focus();return;}
+    doRecharge(amt);$('pgRechargeInput').value='';
+  });
+  document.querySelectorAll('.pg-btn.ghost[data-amt]').forEach(function(b){
+    b.addEventListener('click',function(){doRecharge(parseFloat(b.dataset.amt));});
+  });
+  $('pgForceDue').addEventListener('click',function(){setBal(-bal-8.4);logRow('<span>账单逾期 3 天 · 已扣费</span><span class="m">'+clock()+'</span>');});
+  balRender();
+
+  /* ─────────── 4. 全场景切换：单一 state + render(state) ─────────── */
+  var BUILDING=['A-101','A-102','A-103','A-104','A-105','A-106','A-201','A-202','A-203','A-204','A-205','A-206'];
+  var LABEL={free:'空置',ok:'在租',due:'到期',bad:'逾期',repair:'报修',pass:'通行'};
+  var BASE={f:'A-106',ok:'A-101',due:'A-103',bad:'A-202',repair:'A-205',pass:'A-104'};
+  /* 基础房态（多数房间在租） */
+  function baseRooms(){
+    var m={};
+    BUILDING.forEach(function(r){m[r]='ok';});
+    m['A-106']='free';m['A-205']='ok';m['A-206']='free';m['A-103']='due';m['A-202']='bad';
+    return m;
+  }
+  function roomsWith(overrides){
+    var m=baseRooms();Object.keys(overrides).forEach(function(k){m[k]=overrides[k];});return m;
+  }
+  var SCENES={
+    vacant:{label:'空置',focus:'A-106',rooms:function(){return roomsWith({'A-106':'free'});},
+      resident:null,bill:[['本月账单','—',''],['押金','未收取','']],
+      util:[['水','0.0 吨'],['电','0.0 度']],
+      access:[['最近通行','无记录']],
+      cam:'CH06 A-106 空房巡检',
+      note:'房间空着，账单停发、水电归零。新租客签约后，房态自动切成「在租」，账单规则随之启动。'},
+    leased:{label:'在租',focus:'A-101',rooms:function(){return roomsWith({'A-101':'ok'});},
+      resident:{name:'张伟',phone:'138****6620',lease:'2026-03-01 → 2027-02-28'},
+      bill:[['本月账单','¥1,860.00','g'],['状态','已结清','g']],
+      util:[['水','12.4 吨'],['电','86.0 度']],
+      access:[['18:22','刷卡 · 进入']],
+      cam:'CH01 大门',
+      note:'在租户账单按月自动生成，收租后房态标记「已收」。水电通过小程序随时充值，余额低于阈值提醒。'},
+    expiring:{label:'即将到期',focus:'A-103',rooms:function(){return roomsWith({'A-103':'due'});},
+      resident:{name:'李娜',phone:'139****3311',lease:'2025-10-25 → 2026-10-25 · 剩 7 天'},
+      bill:[['本月账单','¥920.00','a'],['状态','待缴 · 合同将到期','a']],
+      util:[['水','6.1 吨'],['电','41.5 度']],
+      access:[['09:04','手机开门 · 进入']],
+      cam:'CH01 大门',
+      note:'合同进入到期提醒窗口，「即将到期」房态转黄。系统自动推送续租提醒，也可一键生成续租合同。'},
+    overdue:{label:'欠费逾期',focus:'A-202',rooms:function(){return roomsWith({'A-202':'bad'});},
+      resident:{name:'王强',phone:'137****8890',lease:'2025-06-01 → 2026-05-31'},
+      bill:[['欠费金额','¥1,860.00','r'],['逾期','12 天','r']],
+      util:[['水','-¥12.00','r'],['电','已断开','r']],
+      access:[['状态','门禁已禁用','r']],
+      cam:'CH01 大门',
+      note:'逾期超阈值后，系统自动断网、断门禁，并发催缴通知。住户充值或补缴后，网络和门禁即时自动恢复。'},
+    repair:{label:'报修中',focus:'A-205',rooms:function(){return roomsWith({'A-205':'repair'});},
+      resident:{name:'赵敏',phone:'136****2200',lease:'2026-01-10 → 2027-01-09'},
+      bill:[['本月账单','¥1,120.00','g'],['工单 #128','处理中','']],
+      util:[['水','8.8 吨'],['电','53.0 度']],
+      access:[['11:30','手机开门 · 进入']],
+      cam:'CH02 走廊',
+      note:'住户在小程序提交报修，生成工单流转。「报修中」房态单独标记，处理完成自动恢复，进度对住户可见。'},
+    access:{label:'门禁通行',focus:'A-104',rooms:function(){return roomsWith({'A-104':'pass'});},
+      resident:{name:'陈鑫',phone:'135****1177',lease:'2026-02-20 → 2027-02-19'},
+      bill:[['本月账单','¥1,500.00','g'],['状态','已结清','g']],
+      util:[['水','9.2 吨'],['电','60.5 度']],
+      access:[['14:03','手机开门 · 通过'],['14:01','人脸识别 · 通过']],
+      cam:'CH01 大门',
+      note:'门禁通行实时写入记录，和监控画面、住户身份对得上；久未通行还会触发关怀提醒。'}
+  };
+  var SCENE_ORDER=['vacant','leased','expiring','overdue','repair','access'];
+  var state=null;
+
+  /* 建矩阵 DOM */
+  var matrix=$('pgMatrix');
+  BUILDING.forEach(function(r){
+    var d=document.createElement('div');d.className='pg-room';d.dataset.room=r;
+    d.innerHTML='<div class="no">'+r+'</div><div class="st">在租</div>';
+    matrix.appendChild(d);
+  });
+  /* 建场景按钮 */
+  var scenesEl=$('pgScenes');
+  SCENE_ORDER.forEach(function(k){
+    var b=document.createElement('button');b.className='pg-scene';b.type='button';b.dataset.key=k;b.textContent=SCENES[k].label;
+    b.addEventListener('click',function(){stopAuto();render(SCENES[k]);});
+    scenesEl.appendChild(b);
+  });
+  function kv(rows){
+    return rows.map(function(r){
+      var cls=r[2]?(' '+r[2]):'';
+      return '<div class="pg-kv"><span class="k">'+r[0]+'</span><span class="v'+cls+'">'+r[1]+'</span></div>';
+    }).join('');
+  }
+  function render(sc){
+    state=sc;
+    /* 房态矩阵 */
+    var rooms=sc.rooms();
+    BUILDING.forEach(function(r){
+      var el=matrix.querySelector('[data-room="'+r+'"]');
+      var s=rooms[r];el.dataset.s=s;
+      el.querySelector('.st').textContent=LABEL[s];
+      el.classList.toggle('on',r===sc.focus);
+    });
+    /* 住户卡 */
+    var res=sc.resident;
+    $('pgResident').innerHTML=res
+      ? kv([['姓名',res.name],['电话',res.phone],['租期',res.lease]])
+      : '<div class="pg-kv"><span class="k">状态</span><span class="v">当前无人入住</span></div>';
+    /* 账单 / 水电 / 通行 */
+    $('pgBill').innerHTML=kv(sc.bill);
+    $('pgUtility').innerHTML=kv(sc.util);
+    $('pgAccess').innerHTML=kv(sc.access);
+    /* 监控标题 */
+    $('pgCamCh').textContent=sc.cam;
+    $('pgCamTitle').textContent=sc.cam;
+    /* 场景说明 */
+    $('pgSceneNote').innerHTML='<b>'+sc.label+'：</b>'+sc.note+' <span style="color:var(--amber-i)">（以下均为模拟数据）</span>';
+    /* 按钮态 */
+    scenesEl.querySelectorAll('.pg-scene').forEach(function(b){b.classList.toggle('on',b.dataset.key===(sc._key||''));});
+  }
+  /* 给每个场景打上 key，便于高亮 */
+  SCENE_ORDER.forEach(function(k){SCENES[k]._key=k;});
+  render(SCENES['leased']);
+
+  /* 一键自动演示 */
+  var autoTimer=0,autoIdx=0,autoBtn=$('pgAuto');
+  function autoTick(){
+    var k=SCENE_ORDER[autoIdx%SCENE_ORDER.length];autoIdx++;
+    render(SCENES[k]);
+  }
+  function startAuto(){
+    if(autoTimer)return;
+    autoIdx=SCENE_ORDER.indexOf(state&&state._key)+1;
+    autoBtn.textContent='■ 停止自动演示';
+    autoBtn.classList.add('pri');
+    autoTick();
+    autoTimer=setInterval(autoTick,2600);
+  }
+  function stopAuto(){
+    if(!autoTimer)return;
+    clearInterval(autoTimer);autoTimer=0;
+    autoBtn.textContent='▶ 一键自动演示';
+    autoBtn.classList.remove('pri');
+  }
+  autoBtn.addEventListener('click',function(){autoTimer?stopAuto():startAuto();});
 })();
 </script>
 </body>
