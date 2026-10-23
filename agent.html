@@ -13,7 +13,7 @@
 <meta property="og:image" content="https://souse.neng.page/og-image.png">
 <meta property="og:site_name" content="Souse">
 <meta property="og:locale" content="zh_CN">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0e13'/%3E%3Cpath d='M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5' fill='none' stroke='%233DDC97' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%230a0e13'/%3E%3Cpath%20d='M42%2020c-3-3-7-4-11-4-6%200-10%203-10%208%200%2011%2024%206%2024%2017%200%206-5%209-12%209-5%200-10-2-13-5'%20fill='none'%20stroke='%233DDC97'%20stroke-width='5'%20stroke-linecap='round'/%3E%3C/svg%3E">
 <script>
 /* 主题预置：localStorage 优先，否则跟随系统；防闪烁 */
 (function(){try{var t=localStorage.getItem('souse-theme');
@@ -112,6 +112,65 @@ h2{font-size:clamp(22px,3vw,30px);margin:10px 0 10px;font-weight:800;letter-spac
 .cpbtn.done{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 55%,transparent)}
 @media(max-width:560px){.prompt-h{flex-wrap:wrap}.prompt-h .cpbtn{margin-left:0}}
 
+/* ───── 前置条件表单（三步） ───── */
+.pform{display:grid;gap:14px;margin-top:24px}
+.pcard{border:1px solid var(--line);border-radius:16px;background:var(--card);padding:8px 20px 20px;margin:0;min-width:0;transition:.2s}
+.pcard:hover{border-color:var(--line-strong)}
+.pcard>legend{padding:0 8px;margin-left:-8px;font-size:15px;font-weight:720;letter-spacing:-.2px;display:flex;align-items:center;gap:9px}
+.pnum{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--acc);border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);
+  background:color-mix(in srgb,var(--acc) 8%,transparent);border-radius:7px;padding:2px 8px;letter-spacing:1px;flex:none}
+.pcard-d{font-size:13.2px;color:var(--mut);line-height:1.72;margin:8px 0 14px}
+.pcard-d b{color:var(--ink)}
+.pcard-d a{color:var(--acc);border-bottom:1px solid color-mix(in srgb,var(--acc) 35%,transparent)}
+.pfields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.pfields{grid-template-columns:1fr}}
+.pf{display:flex;flex-direction:column;gap:7px;min-width:0}
+.pf>label{font-family:var(--mono);font-size:11px;letter-spacing:.9px;color:var(--mut)}
+.pf input{width:100%;font-family:var(--mono);font-size:13.5px;color:var(--ink);background:var(--tile);border:1px solid var(--line-strong);
+  border-radius:10px;padding:11px 13px;transition:.18s}
+.pf input::placeholder{color:var(--dim)}
+.pf input:focus{outline:none;border-color:color-mix(in srgb,var(--acc) 60%,transparent);background:var(--card-hover);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 13%,transparent)}
+.pgroups{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:760px){.pgroups{grid-template-columns:1fr}}
+.pgroup{border:1px solid var(--line);border-radius:13px;background:var(--strip);padding:10px 14px 13px;margin:0;min-width:0}
+.pgroup>legend{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;color:var(--mut);padding:0 6px;margin-left:-6px;text-transform:uppercase}
+.pradios{display:flex;flex-wrap:wrap;gap:8px}
+.pradio{display:inline-flex;align-items:center;gap:7px;font-size:12.8px;line-height:1.5;color:var(--mut);background:var(--chip);
+  border:1px solid var(--line-strong);border-radius:99px;padding:6px 12px;cursor:pointer;transition:.18s;user-select:none}
+.pradio:hover{color:var(--ink);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.pradio input{appearance:none;-webkit-appearance:none;width:14px;height:14px;border-radius:50%;border:1.5px solid var(--line-strong);
+  background:transparent;margin:0;flex:none;position:relative;cursor:pointer;transition:.18s}
+.pradio input:checked{border-color:var(--acc);background:var(--acc)}
+.pradio input:checked::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:var(--bg)}
+.pradio input:focus-visible{outline:2px solid color-mix(in srgb,var(--acc) 65%,transparent);outline-offset:2px}
+.pradio:has(input:checked){color:var(--ink);border-color:color-mix(in srgb,var(--acc) 55%,transparent);background:color-mix(in srgb,var(--acc) 9%,transparent)}
+.pform .prompt{margin-top:2px}
+
+/* ───── 楼栋预设（03） ───── */
+.popt{font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--dim);border:1px dashed var(--line-strong);
+  border-radius:99px;padding:2px 9px;letter-spacing:.4px;flex:none}
+.pfields.bld{grid-template-columns:1.6fr 1fr}
+.pf-hint{font-size:11.8px;color:var(--dim);line-height:1.62}
+.pf-hint b{color:var(--mut)}
+.pf-hint .mono{color:var(--mut)}
+.pf-narrow{max-width:360px;margin-top:14px}
+.rooms-head,.rrow{display:grid;grid-template-columns:88px 1fr 34px;gap:8px;align-items:center}
+.rooms-head{font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase;
+  margin:2px 0 7px;padding:0 2px}
+.rooms{display:grid;gap:8px}
+.rrow input{width:100%;font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--tile);
+  border:1px solid var(--line-strong);border-radius:9px;padding:9px 11px;transition:.18s}
+.rrow input::placeholder{color:var(--dim)}
+.rrow input:focus{outline:none;border-color:color-mix(in srgb,var(--acc) 60%,transparent);background:var(--card-hover);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 13%,transparent)}
+.rrow-del{width:34px;height:34px;padding:0;display:grid;place-items:center;font-size:15px;line-height:1;color:var(--dim)}
+.rrow-del:hover{color:var(--rose-i);border-color:color-mix(in srgb,var(--rose-i) 55%,transparent)}
+.rooms-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
+.rooms-sum{font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+@media(max-width:760px){.pfields.bld{grid-template-columns:1fr}.rooms-head,.rrow{grid-template-columns:76px 1fr 34px}}
+@media(max-width:420px){.rooms-head,.rrow{grid-template-columns:62px 1fr 34px}}
+
 /* ───── 规则 ───── */
 .rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
 @media(max-width:820px){.rules{grid-template-columns:1fr}}
@@ -189,6 +248,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
 .foot-in a:hover{color:var(--acc)}
 .status{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:var(--mut)}
 .status i{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
@@ -228,15 +288,119 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
 <!-- ═══════════ 提示词 ═══════════ -->
 <section id="prompt" style="padding-top:10px">
   <div class="wrap">
-    <div class="prompt">
-      <div class="prompt-h"><b>PROMPT</b> · 复制后粘贴给 Agent，把尖括号里的内容换成你的实际情况 <button class="cpbtn" id="cp">复制提示词</button></div>
-<pre id="promptText">请帮我把 souse（开源出租屋管理系统）装在这台 Linux 服务器上，并设好管理员密码。
-服务器 IP：&lt;你的IP&gt;
-有没有硬件：&lt;海康门禁 / 爱快或MikroTik路由 / 云沐水电表 / 大华监控 / 都没有&gt;
+    <div class="sec-k">Before you start</div>
+    <h2>三格填完，生成你的安装提示词</h2>
+    <p class="sec-d">照着填，最下面那段提示词会<b>实时更新</b>；点「复制提示词」直接粘给能执行命令的 Agent。<b>03 楼栋可选但强烈建议</b>——填了，装完就是自己的楼；<b>没有的设备勾「没有」</b>，跳过对应步骤即可，核心功能不受影响。</p>
+
+    <form class="pform" id="pform" autocomplete="off">
+
+      <!-- 第 1 格 -->
+      <fieldset class="pcard">
+        <legend><span class="pnum">01</span>准备服务器</legend>
+        <p class="pcard-d">需要一台 Linux 服务器 / 电脑 / NAS，<b>已装 Docker</b>，并且你的电脑能 SSH 上去。下面填 Agent 要连的那台机器。</p>
+        <div class="pfields">
+          <div class="pf">
+            <label for="srvHost">服务器 IP 或主机名</label>
+            <input type="text" id="srvHost" name="srvHost" placeholder="192.168.1.20" spellcheck="false" autocapitalize="off" autocorrect="off">
+          </div>
+          <div class="pf">
+            <label for="srvUser">SSH 用户</label>
+            <input type="text" id="srvUser" name="srvUser" value="root" placeholder="root" spellcheck="false" autocapitalize="off" autocorrect="off">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- 第 2 格 -->
+      <fieldset class="pcard">
+        <legend><span class="pnum">02</span>你有什么设备</legend>
+        <p class="pcard-d">只对接 <a href="#matrix">能力矩阵</a> 里列出的品牌，不支持的不要硬接。<b>勾「没有」= 跳过这一步，核心功能不受影响</b>——收租、账单、合同、小程序都照常。</p>
+        <div class="pgroups">
+          <fieldset class="pgroup">
+            <legend>门禁</legend>
+            <div class="pradios">
+              <label class="pradio"><input type="radio" name="door" value="hikvision"><span>海康</span></label>
+              <label class="pradio"><input type="radio" name="door" value="none"><span>没有</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="pgroup">
+            <legend>网络</legend>
+            <div class="pradios">
+              <label class="pradio"><input type="radio" name="net" value="ikuai"><span>爱快</span></label>
+              <label class="pradio"><input type="radio" name="net" value="mikrotik"><span>MikroTik</span></label>
+              <label class="pradio"><input type="radio" name="net" value="tplink"><span>TP-Link</span></label>
+              <label class="pradio"><input type="radio" name="net" value="none"><span>没有</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="pgroup">
+            <legend>水电表</legend>
+            <div class="pradios">
+              <label class="pradio"><input type="radio" name="meter" value="yunmu"><span>云沐</span></label>
+              <label class="pradio"><input type="radio" name="meter" value="none"><span>没有</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="pgroup">
+            <legend>监控</legend>
+            <div class="pradios">
+              <label class="pradio"><input type="radio" name="cam" value="dahua"><span>大华</span></label>
+              <label class="pradio"><input type="radio" name="cam" value="none"><span>没有</span></label>
+            </div>
+          </fieldset>
+        </div>
+      </fieldset>
+
+      <!-- 第 3 格 -->
+      <fieldset class="pcard">
+        <legend><span class="pnum">03</span>你的楼栋<span class="popt">可选，但强烈建议</span></legend>
+        <p class="pcard-d">填好这里，Agent 装完会<b>直接按预设把楼建好、房间生成好</b>，你打开就是自己的楼，不是空向导。留空也能装，之后在向导里手填即可。</p>
+        <div class="pfields bld">
+          <div class="pf">
+            <label for="bldName">楼栋名称 / 门牌地址</label>
+            <input type="text" id="bldName" name="bldName" placeholder="山边村 26 号楼" spellcheck="false">
+          </div>
+          <div class="pf">
+            <label for="bldCode">楼栋简称（2–4 位字母）</label>
+            <input type="text" id="bldCode" name="bldCode" placeholder="SD" maxlength="4" spellcheck="false"
+                   autocapitalize="characters" autocorrect="off" pattern="[A-Za-z]{2,4}" aria-describedby="bldCodeHint">
+            <span class="pf-hint" id="bldCodeHint">用于房间内部编码 <span class="mono">SD001</span></span>
+          </div>
+        </div>
+
+        <fieldset class="pgroup" style="margin-top:14px">
+          <legend>房间布局（楼层 × 房号区间）</legend>
+          <div class="rooms-head" aria-hidden="true"><span>楼层</span><span>房号区间</span><span></span></div>
+          <div class="rooms" id="rooms"></div>
+          <div class="rooms-foot">
+            <button class="cpbtn" id="addRow" type="button">+ 加一层</button>
+            <span class="rooms-sum" id="roomsSum" aria-live="polite"></span>
+          </div>
+          <p class="pf-hint" style="margin-top:9px">每行填一层：楼层写 <span class="mono">1</span>，区间写 <span class="mono">101-106</span>；多项用逗号 <span class="mono">101-106,108</span>；单间写 <span class="mono">铺</span>。也可以直接粘 <span class="mono">1:101-106</span>。</p>
+        </fieldset>
+
+        <div class="pf pf-narrow">
+          <label for="meterRule">表计命名规则（可选）</label>
+          <input type="text" id="meterRule" name="meterRule" placeholder="{房号}" spellcheck="false" aria-describedby="meterHint">
+        </div>
+        <p class="pf-hint" id="meterHint" style="margin-top:7px">例 <span class="mono">{房号}</span> 或 <span class="mono">2{房号}</span>；<b>没有水电表就留空</b>。</p>
+
+        <div class="note ok"><b>填了的好处：</b>楼栋房间是账单和房态的骨架，也是向导的必做项。Agent 会用管理台向导的「楼栋房间」一步建好，再把楼栋和房间数回报你确认；房间 id 已存在的会自动跳过，重复生成不会重复建。</div>
+      </fieldset>
+
+      <!-- 生成的提示词 -->
+      <div class="prompt">
+        <div class="prompt-h"><b>PROMPT</b> · 随填写实时更新，尖括号里的内容记得先改 <button class="cpbtn" id="cp" type="button">复制提示词</button></div>
+<pre id="gen">请帮我把 souse（开源出租屋管理系统）装在这台 Linux 服务器上，并设好管理员密码。
+
+服务器：&lt;你的服务器IP&gt;（SSH 用户 root）
+我的设备：&lt;勾选你有的设备；没有的项不用配，跳过即可&gt;
+
 安装说明在这里：https://souse.neng.page/agent.html
-请先完整读完说明再动手，亲自运行命令，不要只把步骤告诉我。
-最后按说明里的「验收」把命令的原始输出贴给我。</pre>
-    </div>
+
+请先完整读完说明再动手，然后亲自在服务器上运行命令，不要只把步骤告诉我。
+最后按说明里的「验收」把命令的原始输出贴给我。
+有硬件步骤时提醒我，不要假装成功。</pre>
+      </div>
+
+    </form>
 
     <div class="rules">
       <div class="rule">
@@ -512,12 +676,206 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
     tt.setAttribute('aria-pressed',String(next==='light'));
   });
 })();
-// 一键复制提示词（无外部依赖）
+// 前置条件表单 → 实时生成定制提示词（无外部依赖）
 (function(){
-  var btn=document.getElementById('cp'), pre=document.getElementById('promptText');
-  if(!btn||!pre)return;
+  var form=document.getElementById('pform');
+  var host=document.getElementById('srvHost');
+  var user=document.getElementById('srvUser');
+  var out=document.getElementById('gen');
+  var btn=document.getElementById('cp');
+  if(!form||!host||!user||!out)return;
+
+  var bldName=document.getElementById('bldName');
+  var bldCode=document.getElementById('bldCode');
+  var meterRule=document.getElementById('meterRule');
+  var roomList=document.getElementById('rooms');
+  var roomSum=document.getElementById('roomsSum');
+  var addRowBtn=document.getElementById('addRow');
+  var rowSeq=0;
+
+  var GROUPS=['door','net','meter','cam'];
+  var LABEL={
+    door:{hikvision:'海康门禁'},
+    net:{ikuai:'爱快路由',mikrotik:'MikroTik 路由',tplink:'TP-Link 路由'},
+    meter:{yunmu:'云沐水电表'},
+    cam:{dahua:'大华监控'}
+  };
+
+  function pick(name){
+    var els=form.querySelectorAll('input[name="'+name+'"]');
+    for(var i=0;i<els.length;i++){if(els[i].checked)return els[i].value}
+    return '';
+  }
+
+  function deviceLine(){
+    var have=[],skip=false,picked=0;
+    GROUPS.forEach(function(g){
+      var v=pick(g);
+      if(!v)return;
+      picked++;
+      if(v==='none'){skip=true}else{have.push(LABEL[g][v])}
+    });
+    if(picked===0)return '我的设备：<勾选你有的设备；没有的项不用配，跳过即可>';
+    if(have.length===0)return '我没有门禁/路由/水电表/监控，只用核心功能（收租、账单、合同、小程序）';
+    return '我的设备：'+have.join('、')+((skip||picked<GROUPS.length)?'（没有的项不用配，跳过即可）':'');
+  }
+
+  /* ── 楼栋预设：全角规整、行解析、房间计数 ── */
+  function norm(s){
+    return String(s==null?'':s)
+      .replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-65248)})
+      .replace(/：/g,':').replace(/[－—–~～]/g,'-').replace(/[，、;；]/g,',');
+  }
+
+  // 一行 = 楼层 + 房号区间；兼容把 "1:101-106" 粘进任一格
+  function parseRow(fv,rv){
+    fv=norm(fv).trim();rv=norm(rv).trim();
+    var m;
+    if(!rv&&(m=fv.match(/^(\d+)\s*:\s*(.+)$/))){fv=m[1];rv=m[2]}
+    else if((m=rv.match(/^(\d+)\s*:\s*(.+)$/))){if(!fv)fv=m[1];rv=m[2]}
+    return {floor:fv.replace(/\s+/g,''),rooms:rv};
+  }
+
+  function countRooms(rooms){
+    if(!rooms)return 0;
+    var total=0;
+    rooms.split(',').forEach(function(seg){
+      seg=seg.trim();
+      if(!seg)return;
+      var m=seg.match(/^(\d+)\s*-\s*(\d+)$/);
+      if(m){var a=parseInt(m[1],10),b=parseInt(m[2],10);if(b>=a)total+=b-a+1;return}
+      total+=1; // 单值：101 / 铺
+    });
+    return total;
+  }
+
+  function readRows(){
+    var rows=[],nodes=roomList?roomList.querySelectorAll('.rrow'):[];
+    for(var i=0;i<nodes.length;i++){
+      var p=parseRow(nodes[i].querySelector('.r-floor').value,nodes[i].querySelector('.r-rooms').value);
+      if(p.floor||p.rooms)rows.push(p);
+    }
+    return rows;
+  }
+
+  // 楼栋段：没填就返回空串，填了才出现
+  function buildingBlock(){
+    var rows=readRows();
+    var n=bldName?bldName.value.trim():'';
+    var c=bldCode?bldCode.value.trim().toUpperCase():'';
+    var mr=meterRule?meterRule.value.trim():'';
+    if(!n&&!c&&rows.length===0)return '';
+    var lines=['我的楼栋（请装完就按这个建好，让我打开就是自己的楼）：'];
+    if(n||c){
+      var head='- 楼栋：'+(n||'<楼栋名称>');
+      if(c)head+='（简称 '+c+'）';
+      lines.push(head);
+    }
+    if(rows.length){
+      var total=0,parts=[];
+      rows.forEach(function(p){
+        total+=countRooms(p.rooms);
+        parts.push((p.floor?p.floor+' 层 ':'')+(p.rooms||'<房号区间>'));
+      });
+      lines.push('- 房间：'+parts.join('；')+(total?('（共 '+total+' 间）'):''));
+    }
+    if(mr)lines.push('- 水电表命名规则：'+mr+'（没有水电表就忽略）');
+    lines.push('');
+    lines.push('建楼和生成房间用管理台向导的「楼栋房间」一步完成（房间 id 已存在的会自动跳过，可安全重跑）；做完请把楼栋和房间数回报给我确认。');
+    return lines.join('\n');
+  }
+
+  function updateRoomSum(){
+    if(!roomSum)return;
+    var rows=readRows(),total=0;
+    rows.forEach(function(p){total+=countRooms(p.rooms)});
+    roomSum.textContent=rows.length?(rows.length+' 层 · 共 '+total+' 间'):'';
+  }
+
+  function addRoomRow(floor,rooms){
+    if(!roomList)return null;
+    rowSeq++;
+    var row=document.createElement('div');
+    row.className='rrow';
+
+    var f=document.createElement('input');
+    f.type='text';f.className='r-floor';f.inputMode='numeric';f.placeholder='1';
+    f.autocomplete='off';f.setAttribute('aria-label','楼层');
+
+    var r=document.createElement('input');
+    r.type='text';r.className='r-rooms';r.placeholder='101-106';
+    r.autocomplete='off';r.setAttribute('aria-label','房号区间');
+
+    var del=document.createElement('button');
+    del.type='button';del.className='cpbtn rrow-del';del.textContent='×';
+    del.title='删除这一层';del.setAttribute('aria-label','删除这一层');
+
+    if(floor)f.value=floor;
+    if(rooms)r.value=rooms;
+
+    del.addEventListener('click',function(){
+      if(roomList.querySelectorAll('.rrow').length>1){
+        roomList.removeChild(row);
+      }else{
+        f.value='';r.value='';
+      }
+      updateRoomSum();render();
+    });
+
+    row.appendChild(f);row.appendChild(r);row.appendChild(del);
+    roomList.appendChild(row);
+    updateRoomSum();
+    return f;
+  }
+
+  function render(){
+    var h=host.value.trim()||'<你的服务器IP>';
+    var u=user.value.trim()||'<你的SSH用户>';
+    var block=buildingBlock();
+    var lines=[
+      '请帮我把 souse（开源出租屋管理系统）装在这台 Linux 服务器上，并设好管理员密码。',
+      '',
+      '服务器：'+h+'（SSH 用户 '+u+'）',
+      deviceLine()
+    ];
+    if(block){lines.push('');lines.push(block)}
+    lines.push(
+      '',
+      '安装说明在这里：https://souse.neng.page/agent.html',
+      '',
+      '请先完整读完说明再动手，然后亲自在服务器上运行命令，不要只把步骤告诉我。',
+      '最后按说明里的「验收」把命令的原始输出贴给我。',
+      '有硬件步骤时提醒我，不要假装成功。'
+    );
+    out.textContent=lines.join('\n');
+  }
+
+  // 简称：只留字母、自动大写、最多 4 位
+  if(bldCode){
+    bldCode.addEventListener('input',function(){
+      var v=bldCode.value.replace(/[^a-zA-Z]/g,'').toUpperCase().slice(0,4);
+      if(v!==bldCode.value)bldCode.value=v;
+    });
+  }
+  // 房间行增删
+  addRoomRow('','');
+  if(roomList)roomList.addEventListener('input',updateRoomSum);
+  if(addRowBtn)addRowBtn.addEventListener('click',function(){
+    var f=addRoomRow('','');
+    render();
+    if(f)f.focus();
+  });
+
+  form.addEventListener('submit',function(e){e.preventDefault()});
+  form.addEventListener('input',render);
+  form.addEventListener('change',render);
+  updateRoomSum();
+  render();
+
+  // 一键复制生成的提示词
+  if(!btn)return;
   btn.addEventListener('click',function(){
-    var text=pre.textContent;
+    var text=out.textContent;
     var done=function(){btn.textContent='已复制 ✓';btn.classList.add('done');setTimeout(function(){btn.textContent='复制提示词';btn.classList.remove('done')},2000)};
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(text).then(done,function(){fallback()});
