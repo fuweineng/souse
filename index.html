@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#060809">
 <title>Souse · 出租屋管理系统</title>
-<meta name="description" content="Souse 管出租屋和公寓：收租催缴、电子合同、门禁网络、水电抄表、住户小程序，装在自己的电脑或 NAS 上，跟着向导 6 步配好。">
+<meta name="description" content="Souse 管出租屋和公寓：收租催缴、电子合同、门禁网络、水电抄表、住户手机页，装在自己的电脑或 NAS 上，跟着向导 6 步配好。">
 <meta property="og:title" content="Souse · 出租屋管理系统">
-<meta property="og:description" content="从签约到退租，整栋楼一个系统管完。房态 · 收租 · 门禁 · 网络 · 水电 · 小程序。">
+<meta property="og:description" content="从签约到退租，整栋楼一个系统管完。房态 · 收租 · 门禁 · 网络 · 水电 · 住户手机页。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://souse.neng.page/">
 <meta property="og:image" content="https://souse.neng.page/og-image.png">
@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Souse · 出租屋管理系统">
-<meta name="twitter:description" content="从签约到退租，整栋楼一个系统管完。房态 · 收租 · 门禁 · 网络 · 水电 · 小程序。">
+<meta name="twitter:description" content="从签约到退租，整栋楼一个系统管完。房态 · 收租 · 门禁 · 网络 · 水电 · 住户手机页。">
 <meta name="twitter:image" content="https://souse.neng.page/og-image.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0e13'/%3E%3Cpath d='M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5' fill='none' stroke='%233DDC97' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
 <script>
@@ -451,7 +451,7 @@ select.pg-in{cursor:pointer}
 @media(prefers-reduced-motion:reduce){.pg-live i,.pg-cam-rec::before{animation:none}}
 </style>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Souse","alternateName":"souse","url":"https://souse.neng.page/","image":"https://souse.neng.page/og-image.png","description":"Souse 管出租屋和公寓：收租催缴、电子合同、门禁网络、水电抄表、住户小程序，开源免费，装在自己的电脑或 NAS 上。","applicationCategory":"BusinessApplication","operatingSystem":"自托管 / Docker"}
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Souse","alternateName":"souse","url":"https://souse.neng.page/","image":"https://souse.neng.page/og-image.png","description":"Souse 管出租屋和公寓：收租催缴、电子合同、门禁网络、水电抄表、住户手机页，开源免费，装在自己的电脑或 NAS 上。","applicationCategory":"BusinessApplication","operatingSystem":"自托管 / Docker"}
 </script>
 <!-- Cloudflare Web Analytics（beacon token 2026-10-16 从面板获取；beacon token 打进页面即公开，无账号权限） -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2bf4dabbbd7b4ee7a472ecc2f8daf3a2"}'></script>
@@ -545,8 +545,8 @@ select.pg-in{cursor:pointer}
   <!-- 集成跑马灯 -->
   <div class="trust">
     <div class="marquee">
-      <div class="mq-set"><span>海康门禁</span><span>海康云眸</span><span>爱快路由</span><span>MikroTik 路由</span><span>微信小程序</span><span>大华监控</span><span>云沐水电表</span><span>AI 管家</span></div>
-      <div class="mq-set" aria-hidden="true"><span>海康门禁</span><span>海康云眸</span><span>爱快路由</span><span>MikroTik 路由</span><span>微信小程序</span><span>大华监控</span><span>云沐水电表</span><span>AI 管家</span></div>
+      <div class="mq-set"><span>海康门禁</span><span>海康云眸</span><span>爱快路由</span><span>MikroTik 路由</span><span>微信扫码即用</span><span>大华监控</span><span>云沐水电表</span><span>AI 管家</span></div>
+      <div class="mq-set" aria-hidden="true"><span>海康门禁</span><span>海康云眸</span><span>爱快路由</span><span>MikroTik 路由</span><span>微信扫码即用</span><span>大华监控</span><span>云沐水电表</span><span>AI 管家</span></div>
     </div>
   </div>
 </header>
@@ -620,13 +620,13 @@ select.pg-in{cursor:pointer}
         <div class="tag"><b>合同</b> · 退租结算单</div>
       </div>
 
-      <!-- 小程序（宽） -->
+      <!-- 住户手机页（宽） -->
       <div class="cell c-wide rv">
         <div class="ic"><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></div>
-        <h3>住户小程序</h3>
-        <p>住户用微信就能查账单、手机开门、扫码充值、报修，这些都不用来找你，对账也不用再在微信群里翻。</p>
+        <h3>住户手机页</h3>
+        <p>住户用微信扫一下房间二维码就能查账单、手机开门、扫码充值、报修，不用下载 App。这些都不用来找你，对账也不用再在微信群里翻。</p>
         <div class="tline"><span class="p">住户 ›</span> 7-302 本月账单 <span class="u">¥1,860</span> · 手机开门 ✓ · 报修 #128 处理中</div>
-        <div class="tag"><b>微信</b> 小程序 · 住户自己办</div>
+        <div class="tag"><b>微信</b> 扫码即用 · 免安装</div>
       </div>
 
       <!-- AI 管家 -->
@@ -692,7 +692,7 @@ select.pg-in{cursor:pointer}
       <div class="conn"></div>
       <div class="layer">
         <div class="node">管理后台<small>电脑 · 手机都能开</small></div>
-        <div class="node">住户小程序<small>查账 · 开门 · 报修</small></div>
+        <div class="node">住户手机页<small>查账 · 开门 · 报修</small></div>
         <div class="node">AI 管家<small>一句话查欠费、催缴</small></div>
         <div class="node">自动备份<small>每 6 小时 · 数据不出门</small></div>
       </div>
@@ -734,7 +734,7 @@ select.pg-in{cursor:pointer}
       <ol class="why rv">
         <li><b>设备账号只填一次</b>路由、门禁、水表的地址账号都在「系统设置」里，改完马上生效，换设备不用重启。</li>
         <li><b>规则跑在后台</b>到点发账单、催缴、断网，都按你设的规则自动执行，启用前可以先模拟跑一遍。</li>
-        <li><b>住户能自己办的不找你</b>小程序里开门、充值、看账单，你只管处理出问题的。</li>
+        <li><b>住户能自己办的不找你</b>手机页里开门、充值、看账单，你只管处理出问题的。</li>
         <li><b>懒得点页面就打字问</b>“今天谁欠费”“把 A-202 断网”，它自己查、自己办。</li>
       </ol>
     </div>
@@ -753,7 +753,7 @@ select.pg-in{cursor:pointer}
       <ol class="why rv">
         <li><b>进去登录</b>点页面上任意一个「在线试用」按钮，账号 <code>trial</code>，密码 <code>souse2026</code>。</li>
         <li><b>看房间矩阵和收租</b>首屏就是这个月的房态：哪间收了、哪间待收、哪间逾期一眼看到，点开房间能看账单和收据。</li>
-        <li><b>换住户视角看一遍</b>再看看住户那头长什么样：扫房间二维码进小程序，查账单、手机开门、报修都在里面。</li>
+        <li><b>换住户视角看一遍</b>再看看住户那头长什么样：扫房间二维码进住户手机页（H5，免安装），查账单、手机开门、报修都在里面。</li>
       </ol>
       <div class="rv">
         <div class="note"><b>账号是公开的：</b><code>trial</code> / <code>souse2026</code>，官网直接写着，不用留手机号，也不用加销售微信。看完觉得顺手，再考虑装到自己机器上。</div>
@@ -909,7 +909,7 @@ select.pg-in{cursor:pointer}
       </details>
       <details>
         <summary>没有海康门禁能用吗？</summary>
-        <p>能。纯软件模式照样用：收租、账单、合同、押金、住户小程序这些一个不少，门禁和网络控制等你有设备了再开。</p>
+        <p>能。纯软件模式照样用：收租、账单、合同、押金、住户手机页这些一个不少，门禁和网络控制等你有设备了再开。</p>
       </details>
       <details>
         <summary>数据放哪？</summary>
@@ -917,7 +917,7 @@ select.pg-in{cursor:pointer}
       </details>
       <details>
         <summary>住户要装 App 吗？</summary>
-        <p>不用。房间贴一张二维码，微信扫一扫就进小程序，查账单、手机开门、充值、报修都在里面。</p>
+        <p>不用。房间贴一张二维码，微信扫一扫就进住户手机页（网页版，不用下载 App），查账单、手机开门、充值、报修都在里面。</p>
       </details>
       <details>
         <summary>升级会丢数据吗？</summary>
@@ -1196,7 +1196,7 @@ document.querySelectorAll('.rv').forEach(el=>io.observe(el));
       util:[['水','12.4 吨'],['电','86.0 度']],
       access:[['18:22','刷卡 · 进入']],
       cam:'CH01 大门',
-      note:'在租户账单按月自动生成，收租后房态标记「已收」。水电通过小程序随时充值，余额低于阈值提醒。'},
+      note:'在租户账单按月自动生成，收租后房态标记「已收」。水电通过住户手机页随时充值，余额低于阈值提醒。'},
     expiring:{label:'即将到期',focus:'A-103',rooms:function(){return roomsWith({'A-103':'due'});},
       resident:{name:'李娜',phone:'139****3311',lease:'2025-10-25 → 2026-10-25 · 剩 7 天'},
       bill:[['本月账单','¥920.00','a'],['状态','待缴 · 合同将到期','a']],
@@ -1217,7 +1217,7 @@ document.querySelectorAll('.rv').forEach(el=>io.observe(el));
       util:[['水','8.8 吨'],['电','53.0 度']],
       access:[['11:30','手机开门 · 进入']],
       cam:'CH02 走廊',
-      note:'住户在小程序提交报修，生成工单流转。「报修中」房态单独标记，处理完成自动恢复，进度对住户可见。'},
+      note:'住户在手机页提交报修，生成工单流转。「报修中」房态单独标记，处理完成自动恢复，进度对住户可见。'},
     access:{label:'门禁通行',focus:'A-104',rooms:function(){return roomsWith({'A-104':'pass'});},
       resident:{name:'陈鑫',phone:'135****1177',lease:'2026-02-20 → 2027-02-19'},
       bill:[['本月账单','¥1,500.00','g'],['状态','已结清','g']],

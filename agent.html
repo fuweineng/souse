@@ -313,7 +313,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
       <!-- 第 2 格 -->
       <fieldset class="pcard">
         <legend><span class="pnum">02</span>你有什么设备</legend>
-        <p class="pcard-d">只对接 <a href="#matrix">能力矩阵</a> 里列出的品牌，不支持的不要硬接。<b>勾「没有」= 跳过这一步，核心功能不受影响</b>——收租、账单、合同、小程序都照常。</p>
+        <p class="pcard-d">只对接 <a href="#matrix">能力矩阵</a> 里列出的品牌，不支持的不要硬接。<b>勾「没有」= 跳过这一步，核心功能不受影响</b>——收租、账单、合同、住户手机页都照常。</p>
         <div class="pgroups">
           <fieldset class="pgroup">
             <legend>门禁</legend>
@@ -515,7 +515,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
       <ul class="pass">
         <li><b>水电表（云沐 iyunmu）</b>：填 <span class="cmd">iyunmu_username</span> / <span class="cmd">iyunmu_password</span>。配好后对着表拍照即可 OCR 抄表、自动算费。<b>没有云沐表就跳过</b>——读数手填，账单照常生成，核心功能不受影响。</li>
         <li><b>爱快路由</b>：填 <span class="cmd">ikuai_host</span> / <span class="cmd">ikuai_username</span> / <span class="cmd">ikuai_password</span>。配好后欠费断网、缴费恢复、按房间限速。源码注释写明这一步「可选」。<b>没有爱快就跳过</b>——宽带账号手工登记；MikroTik / RouterOS、TP-Link 同样支持，在设置里选对应类型。</li>
-        <li><b>海康门禁</b>：填 <span class="cmd">hikiot_app_key</span> / <span class="cmd">hikiot_app_secret</span>，支持 ISAPI 直连，或走海康云眸开放平台 + WebConsole。<b>没有海康门禁就跳过</b>——门禁功能不启用，收租、账单、合同、小程序一切照旧。</li>
+        <li><b>海康门禁</b>：填 <span class="cmd">hikiot_app_key</span> / <span class="cmd">hikiot_app_secret</span>，支持 ISAPI 直连，或走海康云眸开放平台 + WebConsole。<b>没有海康门禁就跳过</b>——门禁功能不启用，收租、账单、合同、住户手机页一切照旧。</li>
       </ul>
 
       <div id="matrix" style="margin-top:26px">
@@ -716,7 +716,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
       if(v==='none'){skip=true}else{have.push(LABEL[g][v])}
     });
     if(picked===0)return '我的设备：<勾选你有的设备；没有的项不用配，跳过即可>';
-    if(have.length===0)return '我没有门禁/路由/水电表/监控，只用核心功能（收租、账单、合同、小程序）';
+    if(have.length===0)return '我没有门禁/路由/水电表/监控，只用核心功能（收租、账单、合同、住户手机页）';
     return '我的设备：'+have.join('、')+((skip||picked<GROUPS.length)?'（没有的项不用配，跳过即可）':'');
   }
 
