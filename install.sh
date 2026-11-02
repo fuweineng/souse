@@ -17,17 +17,25 @@ C_RED=$(printf '\033[31m'); C_GRN=$(printf '\033[32m'); C_YEL=$(printf '\033[33m
 C_BLU=$(printf '\033[34m'); C_DIM=$(printf '\033[2m');  C_RST=$(printf '\033[0m')
 if [ ! -t 1 ]; then C_RED=; C_GRN=; C_YEL=; C_BLU=; C_DIM=; C_RST=; fi
 
+# 下载加速镜像（国内直连 GitHub Releases 常见 50KB/s，103MB 要半小时）
+# 仅在 GitHub 直连 60 秒下不完时才启用；SHA256 始终校验，镜像篡改会被拦下。
+# 覆盖：SOUSE_MIRROR="https://my.mirror/"   关闭：SOUSE_MIRROR=off
+MIRRORS="${SOUSE_MIRROR:-https://gh-proxy.com/,https://ghfast.top/,https://ghproxy.net/}"
+[ "$MIRRORS" = "off" ] && MIRRORS=""
+
 info() { printf '%s[INFO]%s %s\n' "$C_BLU" "$C_RST" "$*"; }
 ok()   { printf '%s[OK]%s %s\n'   "$C_GRN" "$C_RST" "$*"; }
 warn() { printf '%s[WARN]%s %s\n' "$C_YEL" "$C_RST" "$*"; }
 die()  { printf '%s[ERR]%s %s\n'  "$C_RED" "$C_RST" "$*" >&2; exit 1; }
 
 MODE="install"
+MIRROR_ONLY=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --channel)     shift ;;
     --update-only) MODE="update"; shift ;;
     --wizard-only) MODE="wizard"; shift ;;
+    --mirror-only) MIRROR_ONLY=1; shift ;;
     --dir)         APP_DIR="$2"; shift 2 ;;
     -h|--help)
       cat <<'EOF'
@@ -38,12 +46,18 @@ souse 安装脚本
 选项:
   --update-only   只更新程序，保留数据与配置
   --wizard-only   只重建配置
+  --mirror-only   跳过 GitHub 直连，直接用加速镜像（GitHub 被墙时用）
   --dir <路径>    安装目录（默认 /opt/souse）
   -h, --help      显示帮助
 
 装完后:
-  sousectl start|stop|restart|status|logs|backup|update|password
+  sousectl start|stop|restart|status|logs|backup|backups|restore|update|password
   管理台 http://<本机IP>:8080
+
+环境变量:
+  SOUSE_MIRROR   下载镜像前缀，逗号分隔多个；off 关闭镜像
+                 默认 https://gh-proxy.com/,https://ghfast.top/,https://ghproxy.net/
+                 仅当 GitHub 直连 60 秒下不完时启用，SHA256 始终校验
 EOF
       exit 0 ;;
     *) die "未知参数: $1（用 --help 查看）" ;;
@@ -154,14 +168,29 @@ DB="$APP_DIR/data/db/souse.db"
 mkdir -p "$APP_DIR/data/backups"
 ts=$(date +%Y%m%d-%H%M%S)
 out="$APP_DIR/data/backups/souse-$ts.db"
+
 if command -v sqlite3 >/dev/null 2>&1; then
+  # 热备：不停服
   sqlite3 "$DB" ".backup '$out'"
 else
+  # 没有 sqlite3：停服后把 db + wal + shm 作为一组拷走。
+  # 只拷 .db 会丢还在 WAL 里未落盘的数据（实测恢复后数据不全）。
+  echo "sqlite3 不可用，停服拷贝 db/wal/shm（约 2 秒）"
+  systemctl stop souse 2>/dev/null || true
   cp "$DB" "$out"
+  [ -f "$DB-wal" ] && cp "$DB-wal" "$out-wal" || true
+  [ -f "$DB-shm" ] && cp "$DB-shm" "$out-shm" || true
+  systemctl start souse 2>/dev/null || true
 fi
+
 sha256sum "$out" > "$out.sha256"
+chown souse:souse "$out" "$out.sha256" 2>/dev/null || true
+[ -f "$out-wal" ] && chown souse:souse "$out-wal" 2>/dev/null || true
+[ -f "$out-shm" ] && chown souse:souse "$out-shm" 2>/dev/null || true
 find "$APP_DIR/data/backups" -name 'souse-*.db' -mtime +30 -delete 2>/dev/null || true
 find "$APP_DIR/data/backups" -name 'souse-*.db.sha256' -mtime +30 -delete 2>/dev/null || true
+find "$APP_DIR/data/backups" -name 'souse-*.db-wal' -mtime +30 -delete 2>/dev/null || true
+find "$APP_DIR/data/backups" -name 'souse-*.db-shm' -mtime +30 -delete 2>/dev/null || true
 echo "backup ok: $out"
 EOS
   chmod 755 /usr/local/lib/souse/backup.sh
@@ -172,8 +201,8 @@ Description=souse 数据库备份
 
 [Service]
 Type=oneshot
-User=${SERVICE_NAME}
-Group=${SERVICE_NAME}
+# 以 root 运行：没有 sqlite3 时需要停/起 souse 服务来拿一致副本
+User=root
 ExecStart=/usr/local/lib/souse/backup.sh
 EOF
 
@@ -216,8 +245,27 @@ case "$cmd" in
   config)  "${EDITOR:-vi}" "$APP_DIR/config.yaml" && systemctl restart "$SERVICE" && g "已重启" ;;
   update)  curl -fsSL https://souse.neng.page/install.sh | sh -s -- --update-only ;;
   password|mkpasswd)
-           journalctl -u "$SERVICE" --no-pager | sed -n 's/.*Password: *\([A-Za-z0-9]\{6,\}\).*/\1/p' | head -1 | grep . || e "日志里没有初始密码（可能已改过）" ;;
+           journalctl -u "$SERVICE" --no-pager | sed -n 's/.*Password: *\([A-Za-z0-9]\{6,\}\).*/\1/p' | tail -1 | grep . || e "日志里没有初始密码（可能已改过）" ;;
   backup)  systemctl start "$SERVICE-backup.service" && g "备份完成，见 $APP_DIR/data/backups" ;;
+  backups) ls -1t "$APP_DIR/data/backups"/*.db 2>/dev/null | head -10 || e "还没有备份" ;;
+  restore)
+    [ $# -ge 1 ] || e "用法: sudo sousectl restore <备份文件.db>（先 sousectl backups 看有哪些）"
+    B="$1"
+    [ -f "$B" ] || e "文件不存在: $B"
+    printf '将用 %s 覆盖当前数据库，服务会重启。继续？[y/N] ' "$B"
+    read -r ans
+    case "$ans" in y|Y|yes) ;; *) e "已取消" ;; esac
+    systemctl stop "$SERVICE"
+    cp -f "$B" "$APP_DIR/data/db/souse.db"
+    rm -f "$APP_DIR/data/db/souse.db-wal" "$APP_DIR/data/db/souse.db-shm"
+    # 备份里带 wal/shm 时一并还原（没有 sqlite3 的机器用这种备份）
+    [ -f "$B-wal" ] && cp -f "$B-wal" "$APP_DIR/data/db/souse.db-wal" || true
+    [ -f "$B-shm" ] && cp -f "$B-shm" "$APP_DIR/data/db/souse.db-shm" || true
+    chown -R "$SERVICE:$SERVICE" "$APP_DIR/data/db/"
+    systemctl start "$SERVICE"
+    sleep 2
+    systemctl is-active --quiet "$SERVICE" && g "已恢复并重启: $B" || e "恢复后服务没起来，看 journalctl -u $SERVICE -n 50"
+    ;;
   version) cat "$APP_DIR/VERSION" 2>/dev/null || echo unknown ;;
   url)     ip -4 route get 1.1.1.1 2>/dev/null | awk '{print "http://"$7":8080"; exit}' || echo "http://127.0.0.1:8080" ;;
   *)
@@ -231,6 +279,8 @@ sousectl — souse 管理命令
   config                   编辑配置并重启
   password                 显示初始管理员密码
   backup                   立即备份数据库
+  backups                  列出最近 10 份备份
+  restore <文件>           用备份覆盖数据库并重启（会二次确认）
   update                   升级到最新版本（再跑一次安装脚本 --update-only）
   version                  当前版本
   url                      本机访问地址
@@ -264,15 +314,58 @@ if [ "$MODE" = "update" ] && [ "$CUR" = "$VERSION" ]; then
   ok "已是最新版本 $VERSION"
   exit 0
 fi
-if [ -n "$CUR" ]; then info "当前 ${CUR} → 目标 ${VERSION}"; else info "待安装版本 ${VERSION}"; fi
 
+SKIP_DL=0
+if [ "$CUR" = "$VERSION" ] && [ -x "$APP_DIR/$BIN_NAME" ]; then
+  info "已经是 ${VERSION}，跳过下载，只重建服务与配置（修复模式）"
+  SKIP_DL=1
+elif [ -n "$CUR" ]; then
+  info "当前 ${CUR} → 目标 ${VERSION}"
+else
+  info "待安装版本 ${VERSION}"
+fi
+
+if [ "$SKIP_DL" != "1" ]; then
 ASSET="souse-linux-${ARCH}.tar.gz"
 BASE="https://github.com/${REPO}/releases/download/${VERSION}"
 TMP=$(mktemp -d "${TMPDIR:-/tmp}/souse.XXXXXX" 2>/dev/null) || TMP=$(mktemp -d /tmp/souse.XXXXXX)
 trap 'rm -rf "$TMP"' EXIT INT TERM
 
 info "下载 ${ASSET} ..."
-fetch "${BASE}/${ASSET}" "${TMP}/${ASSET}" || die "下载失败: ${BASE}/${ASSET}"
+DEST="${TMP}/${ASSET}"
+
+# 直连 60 秒下不完就换镜像；--mirror-only 直接走镜像
+GOT_IT=0
+if [ "$MIRROR_ONLY" != "1" ]; then
+  if fetch "${BASE}/${ASSET}" "$DEST" 60; then
+    GOT_IT=1
+  else
+    warn "GitHub 直连 60 秒未完成，改用加速镜像"
+  fi
+else
+  info "按要求跳过 GitHub 直连（--mirror-only）"
+fi
+
+if [ "$GOT_IT" != "1" ]; then
+  OLDIFS=$IFS; IFS=','
+  for m in $MIRRORS; do
+    IFS=$OLDIFS
+    [ -n "$m" ] || continue
+    info "尝试镜像: $m"
+    if fetch "${m}${BASE}/${ASSET}" "$DEST" 1800; then
+      ok "镜像下载成功: $m"
+      GOT_IT=1
+      break
+    fi
+  done
+  IFS=$OLDIFS
+fi
+
+if [ "$GOT_IT" != "1" ]; then
+  [ "$MIRROR_ONLY" = "1" ] && die "所有镜像都失败；去掉 --mirror-only 或用 SOUSE_MIRROR=off 走 GitHub 直连"
+  warn "镜像都不可用，回到 GitHub 直连（不限时，可能很慢）"
+  fetch "${BASE}/${ASSET}" "$DEST" 1800 || die "下载失败: ${BASE}/${ASSET}"
+fi
 
 if fetch "${BASE}/${ASSET}.sha256" "${TMP}/sum.txt" 60 2>/dev/null; then
   EXP=$(awk '{print $1}' "${TMP}/sum.txt")
@@ -303,6 +396,7 @@ done
 
 echo "$VERSION" > "$APP_DIR/VERSION"
 chmod 755 "$APP_DIR/$BIN_NAME" 2>/dev/null || true
+fi  # SKIP_DL
 
 mkdir -p "$APP_DIR/data/db" "$APP_DIR/data/backups" "$APP_DIR/logs"
 gen_config
@@ -312,6 +406,17 @@ chmod 600 "$APP_DIR/config.yaml" 2>/dev/null || true
 
 write_service
 write_cli
+
+# 尽量装上 sqlite3：有它备份就能不停服热备（失败不阻断安装）
+if ! command -v sqlite3 >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+  info "安装 sqlite3（用于不停服热备份）..."
+  if apt-get install -y -qq sqlite3 >/dev/null 2>&1 || { apt-get update -qq >/dev/null 2>&1 && apt-get install -y -qq sqlite3 >/dev/null 2>&1; }; then
+    ok "sqlite3 就绪"
+  else
+    warn "sqlite3 没装上，备份时会短暂停服（约 2 秒）"
+  fi
+fi
+
 write_backup_timer
 
 if [ "$MODE" = "update" ]; then
@@ -334,9 +439,9 @@ if [ "$MODE" = "update" ]; then ok "已更新到 ${VERSION}"; else ok "安装完
 printf '  管理台   http://%s:8080\n' "${IP:-127.0.0.1}"
 printf '  配置     %s/config.yaml\n' "$APP_DIR"
 printf '  数据     %s/data\n' "$APP_DIR"
-printf '  管理     sousectl start|stop|restart|status|logs|backup|update\n\n'
+printf '  管理     sousectl start|stop|restart|status|logs|backup|backups|restore|update\n\n'
 
-PW=$(journalctl -u "$SERVICE_NAME" --no-pager 2>/dev/null | sed -n 's/.*Password: *\([A-Za-z0-9]\{6,\}\).*/\1/p' | head -1) || PW=""
+PW=$(journalctl -u "$SERVICE_NAME" --no-pager 2>/dev/null | sed -n 's/.*Password: *\([A-Za-z0-9]\{6,\}\).*/\1/p' | tail -1) || PW=""
 if [ -n "$PW" ]; then
   printf '  %s管理员 admin   初始密码 %s%s\n' "$C_GRN" "$PW" "$C_RST"
   printf '  %s忘了就执行: sudo sousectl password%s\n\n' "$C_DIM" "$C_RST"
