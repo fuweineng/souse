@@ -6,6 +6,26 @@
 - 自定义域名：`CNAME` → souse.neng.page（Cloudflare 橙云代理）
 - 修改内容后推送到 `main`，Pages 自动发布
 
+## 安装入口（本仓库同时承担发布）
+
+| 路径 | 内容 |
+|------|------|
+| `/install.sh` | 一行安装脚本：`curl -fsSL https://souse.neng.page/install.sh \| sudo sh` |
+| `/downloads.html` | 下载页，运行时读 GitHub Releases API 列出各平台安装包 |
+
+安装包本身放在本仓库的 **Releases**（`gh release create v1.0.0 ...`），因为 GitHub Pages 仓库天然是公网可访问的静态空间，安装脚本按 `releases/latest` 取最新版：
+
+```bash
+# 打包（在能访问 CT215 产物的机器上）
+tar -czf souse-linux-amd64.tar.gz souse-linux-amd64   # 内含 610souse / web/static / assets / fonts / config.example.yaml
+sha256sum souse-linux-amd64.tar.gz > souse-linux-amd64.tar.gz.sha256
+
+# 发布
+gh release create v1.0.1 souse-linux-amd64.tar.gz{,.sha256} -R fuweineng/souse --notes-file RELEASE_NOTES.md
+```
+
+`install.sh` 的约定：装在 `/opt/souse`，systemd 单元 `souse.service`，配置 `/opt/souse/config.yaml`，数据 `/opt/souse/data/db/souse.db`，备份定时器 `souse-backup.timer`（每 6 小时，保留 30 天），管理命令 `sousectl`。
+
 ## 在线试用入口
 
 官网的「在线试用」按钮统一指向 **https://demo.neng.page/login**（正式后台 `:8080`）。

@@ -469,6 +469,7 @@ select.pg-in{cursor:pointer}
         <a href="#features">功能</a>
         <a href="#arch">怎么运转</a>
         <a href="#start">快速开始</a>
+        <a href="downloads.html">下载</a>
         <a href="agent.html">AI 安装</a>
         <a href="#playground">演示</a>
         <a href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用</a>
@@ -712,6 +713,15 @@ select.pg-in{cursor:pointer}
       <h2>三行命令，启动一栋楼</h2>
       <p class="sec-d">想装在自己电脑或 NAS 上，让会弄电脑的朋友跑三行命令就行。打开页面跟着 6 步向导走，把楼栋、收款码、水电表、路由、门禁设一遍就能用。</p>
     </div>
+    <div class="term rv" style="margin-bottom:22px">
+      <div class="win-bar"><i></i><i></i><i></i><span>一行装好 · linux</span></div>
+      <div class="term-body">
+<span class="p">$</span> curl -fsSL <span class="u">https://souse.neng.page/install.sh</span> | sudo sh
+<span class="ok">✓ 装完直接打印管理台地址和管理员初始密码</span>
+
+<span class="c"># 之后日常：sousectl start | stop | restart | status | logs | backup | update</span>
+      </div>
+    </div>
     <div class="steps">
       <div class="rv">
         <div class="term">
@@ -925,7 +935,7 @@ select.pg-in{cursor:pointer}
       </details>
       <details>
         <summary>支持哪些部署方式？</summary>
-        <p>Docker Compose 三行命令就能起来，电脑、NAS、云服务器都行；外网远程访问走一条 Cloudflare 隧道。装好后页面里有 6 步向导，一步步把楼栋、收款码、水电表、路由、门禁配齐。</p>
+        <p>两种都行。想一步装好：<code>curl -fsSL https://souse.neng.page/install.sh | sudo sh</code>，程序、管理台、自动备份、开机自启一次到位，装完直接告诉你管理员密码。习惯 Docker 也可以 <code>docker compose up -d</code>。电脑、NAS、云服务器都行；外网远程访问走一条 Cloudflare 隧道。装好后页面里有 6 步向导，把楼栋、收款码、水电表、路由、门禁配齐。</p>
       </details>
     </div>
   </div>
