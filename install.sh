@@ -216,7 +216,7 @@ case "$cmd" in
   config)  "${EDITOR:-vi}" "$APP_DIR/config.yaml" && systemctl restart "$SERVICE" && g "已重启" ;;
   update)  curl -fsSL https://souse.neng.page/install.sh | sh -s -- --update-only ;;
   password|mkpasswd)
-           journalctl -u "$SERVICE" --no-pager | grep -m1 "Password:" || e "日志里没有初始密码（可能已改过）" ;;
+           journalctl -u "$SERVICE" --no-pager | sed -n 's/.*Password: *\([A-Za-z0-9]\{6,\}\).*/\1/p' | head -1 | grep . || e "日志里没有初始密码（可能已改过）" ;;
   backup)  systemctl start "$SERVICE-backup.service" && g "备份完成，见 $APP_DIR/data/backups" ;;
   version) cat "$APP_DIR/VERSION" 2>/dev/null || echo unknown ;;
   url)     ip -4 route get 1.1.1.1 2>/dev/null | awk '{print "http://"$7":8080"; exit}' || echo "http://127.0.0.1:8080" ;;
@@ -315,17 +315,17 @@ write_cli
 write_backup_timer
 
 if [ "$MODE" = "update" ]; then
-  systemctl restart "$SERVICE"
+  systemctl restart "$SERVICE_NAME"
 else
-  systemctl enable --now "$SERVICE"
+  systemctl enable --now "$SERVICE_NAME"
 fi
-systemctl enable --now "${SERVICE}-backup.timer" >/dev/null 2>&1 || true
+systemctl enable --now "${SERVICE_NAME}-backup.timer" >/dev/null 2>&1 || true
 
 sleep 3
-if systemctl is-active --quiet "$SERVICE"; then
+if systemctl is-active --quiet "$SERVICE_NAME"; then
   ok "服务已运行"
 else
-  warn "服务没起来，看日志：journalctl -u ${SERVICE} -n 50"
+  warn "服务没起来，看日志：journalctl -u ${SERVICE_NAME} -n 50"
 fi
 
 IP=$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}') || IP=""
@@ -336,7 +336,7 @@ printf '  配置     %s/config.yaml\n' "$APP_DIR"
 printf '  数据     %s/data\n' "$APP_DIR"
 printf '  管理     sousectl start|stop|restart|status|logs|backup|update\n\n'
 
-PW=$(journalctl -u "$SERVICE" --no-pager 2>/dev/null | grep -m1 'Password:' | awk '{print $NF}') || PW=""
+PW=$(journalctl -u "$SERVICE_NAME" --no-pager 2>/dev/null | sed -n 's/.*Password: *\([A-Za-z0-9]\{6,\}\).*/\1/p' | head -1) || PW=""
 if [ -n "$PW" ]; then
   printf '  %s管理员 admin   初始密码 %s%s\n' "$C_GRN" "$PW" "$C_RST"
   printf '  %s忘了就执行: sudo sousectl password%s\n\n' "$C_DIM" "$C_RST"
