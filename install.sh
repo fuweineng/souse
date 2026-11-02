@@ -67,9 +67,9 @@ detect_os() {
 
 fetch() {
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL --retry 3 --connect-timeout 15 "$1" -o "$2"
+    curl -fsSL --retry 3 --connect-timeout 15 --max-time "${3:-1800}" "$1" -o "$2"
   elif command -v wget >/dev/null 2>&1; then
-    wget -q -O "$2" "$1"
+    wget -q -T "${3:-1800}" -O "$2" "$1"
   else
     die "需要 curl 或 wget"
   fi
@@ -77,9 +77,9 @@ fetch() {
 
 fetch_stdout() {
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL --connect-timeout 15 "$1"
+    curl -fsSL --connect-timeout 15 --max-time "${2:-60}" "$1"
   else
-    wget -qO- "$1"
+    wget -qO- -T "${2:-60}" "$1"
   fi
 }
 
@@ -274,7 +274,7 @@ trap 'rm -rf "$TMP"' EXIT INT TERM
 info "下载 ${ASSET} ..."
 fetch "${BASE}/${ASSET}" "${TMP}/${ASSET}" || die "下载失败: ${BASE}/${ASSET}"
 
-if fetch "${BASE}/${ASSET}.sha256" "${TMP}/sum.txt" 2>/dev/null; then
+if fetch "${BASE}/${ASSET}.sha256" "${TMP}/sum.txt" 60 2>/dev/null; then
   EXP=$(awk '{print $1}' "${TMP}/sum.txt")
   GOT=$(sha256sum "${TMP}/${ASSET}" | awk '{print $1}')
   [ "$EXP" = "$GOT" ] || die "校验失败（期望 $EXP，实际 $GOT）"
