@@ -1,48 +1,45 @@
-#!/usr/bin/env bash
-# souse — 一行安装：curl -fsSL https://souse.neng.page/install.sh | sh
+#!/bin/sh
+# souse — 一行安装：curl -fsSL https://souse.neng.page/install.sh | sudo sh
 #
 # 目标：一台 Linux（有 systemd）电脑，一行命令装完，自动打印管理员密码。
 # 产物来源：https://github.com/fuweineng/souse/releases
+#
+# 注意：本脚本按 POSIX sh 编写（dash 也能跑），不依赖 bash。
 
-set -euo pipefail
+set -eu
 
-readonly REPO="fuweineng/souse"
-readonly APP_DIR_DEFAULT="/opt/souse"
-readonly BIN_NAME="610souse"
-readonly SERVICE_NAME="souse"
+REPO="fuweineng/souse"
+APP_DIR="/opt/souse"
+BIN_NAME="610souse"
+SERVICE_NAME="souse"
 
-if [ -t 1 ]; then
-  C_RED=$'\033[31m'; C_GRN=$'\033[32m'; C_YEL=$'\033[33m'; C_BLU=$'\033[34m'; C_DIM=$'\033[2m'; C_RST=$'\033[0m'
-else
-  C_RED=''; C_GRN=''; C_YEL=''; C_BLU=''; C_DIM=''; C_RST=''
-fi
+C_RED=$(printf '\033[31m'); C_GRN=$(printf '\033[32m'); C_YEL=$(printf '\033[33m')
+C_BLU=$(printf '\033[34m'); C_DIM=$(printf '\033[2m');  C_RST=$(printf '\033[0m')
+if [ ! -t 1 ]; then C_RED=; C_GRN=; C_YEL=; C_BLU=; C_DIM=; C_RST=; fi
+
 info() { printf '%s[INFO]%s %s\n' "$C_BLU" "$C_RST" "$*"; }
 ok()   { printf '%s[OK]%s %s\n'   "$C_GRN" "$C_RST" "$*"; }
 warn() { printf '%s[WARN]%s %s\n' "$C_YEL" "$C_RST" "$*"; }
 die()  { printf '%s[ERR]%s %s\n'  "$C_RED" "$C_RST" "$*" >&2; exit 1; }
 
-CHANNEL="stable"
 MODE="install"
-APP_DIR="$APP_DIR_DEFAULT"
-
 while [ $# -gt 0 ]; do
   case "$1" in
-    --channel)     CHANNEL="${2:-stable}"; shift 2 ;;
+    --channel)     shift ;;
     --update-only) MODE="update"; shift ;;
     --wizard-only) MODE="wizard"; shift ;;
-    --dir)         APP_DIR="${2:?}"; shift 2 ;;
+    --dir)         APP_DIR="$2"; shift 2 ;;
     -h|--help)
-      cat <<EOF
+      cat <<'EOF'
 souse 安装脚本
 
 用法: curl -fsSL https://souse.neng.page/install.sh | sudo sh -s -- [选项]
 
 选项:
-  --channel <stable|nightly>  发布频道（默认 stable）
-  --update-only               只更新程序，保留数据与配置
-  --wizard-only               只重建配置
-  --dir <路径>                安装目录（默认 /opt/souse）
-  -h, --help                  显示帮助
+  --update-only   只更新程序，保留数据与配置
+  --wizard-only   只重建配置
+  --dir <路径>    安装目录（默认 /opt/souse）
+  -h, --help      显示帮助
 
 装完后:
   sousectl start|stop|restart|status|logs|backup|update|password
@@ -78,18 +75,25 @@ fetch() {
   fi
 }
 
-latest_version() {
-  local url="https://api.github.com/repos/${REPO}/releases/latest" body
+fetch_stdout() {
   if command -v curl >/dev/null 2>&1; then
-    body=$(curl -fsSL --connect-timeout 15 "$url") || return 1
+    curl -fsSL --connect-timeout 15 "$1"
   else
-    body=$(wget -qO- "$url") || return 1
+    wget -qO- "$1"
   fi
-  printf '%s' "$body" | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"\([^"]*\)"$/\1/'
+}
+
+latest_version() {
+  local body
+  body=$(fetch_stdout "https://api.github.com/repos/${REPO}/releases/latest") || return 1
+  printf '%s' "$body" \
+    | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' \
+    | head -1 \
+    | sed 's/.*"\([^"]*\)"$/\1/'
 }
 
 gen_config() {
-  local cfg="$APP_DIR/config.yaml"
+  cfg="$APP_DIR/config.yaml"
   [ -f "$cfg" ] && return 0
   [ -f "$APP_DIR/config.example.yaml" ] || die "发布包缺少 config.example.yaml"
   cp "$APP_DIR/config.example.yaml" "$cfg"
@@ -191,30 +195,32 @@ EOF
 
 write_cli() {
   cat > /usr/local/bin/sousectl <<'EOC'
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 APP_DIR="/opt/souse"
 SERVICE="souse"
 g() { printf '\033[32m%s\033[0m\n' "$*"; }
 e() { printf '\033[31m%s\033[0m\n' "$*" >&2; exit 1; }
 [ "$(id -u)" -eq 0 ] || e "请用 sudo sousectl ..."
 
-case "${1:-help}" in
+cmd="${1:-help}"
+[ $# -gt 0 ] && shift || true
+case "$cmd" in
   start)   systemctl start "$SERVICE";   g "已启动" ;;
   stop)    systemctl stop "$SERVICE";    g "已停止" ;;
   restart) systemctl restart "$SERVICE"; g "已重启" ;;
   status)  systemctl status "$SERVICE" --no-pager ;;
-  logs)    shift; journalctl -u "$SERVICE" -f "$@" ;;
+  logs)    journalctl -u "$SERVICE" -f "$@" ;;
   enable)  systemctl enable "$SERVICE";  g "已设为开机自启" ;;
   disable) systemctl disable "$SERVICE"; g "已取消开机自启" ;;
-  config)  ${EDITOR:-vi} "$APP_DIR/config.yaml" && systemctl restart "$SERVICE" && g "已重启" ;;
+  config)  "${EDITOR:-vi}" "$APP_DIR/config.yaml" && systemctl restart "$SERVICE" && g "已重启" ;;
   update)  curl -fsSL https://souse.neng.page/install.sh | sh -s -- --update-only ;;
   password|mkpasswd)
            journalctl -u "$SERVICE" --no-pager | grep -m1 "Password:" || e "日志里没有初始密码（可能已改过）" ;;
   backup)  systemctl start "$SERVICE-backup.service" && g "备份完成，见 $APP_DIR/data/backups" ;;
   version) cat "$APP_DIR/VERSION" 2>/dev/null || echo unknown ;;
   url)     ip -4 route get 1.1.1.1 2>/dev/null | awk '{print "http://"$7":8080"; exit}' || echo "http://127.0.0.1:8080" ;;
-  help|*)
+  *)
     cat <<'H'
 sousectl — souse 管理命令
 
@@ -225,7 +231,7 @@ sousectl — souse 管理命令
   config                   编辑配置并重启
   password                 显示初始管理员密码
   backup                   立即备份数据库
-  update                   升级到最新版本
+  update                   升级到最新版本（再跑一次安装脚本 --update-only）
   version                  当前版本
   url                      本机访问地址
 H
@@ -240,7 +246,7 @@ EOC
 need_root
 detect_os
 ARCH=$(detect_arch)
-info "souse 安装器 · 频道 ${CHANNEL} · 架构 ${ARCH}"
+info "souse 安装器 · 架构 ${ARCH}"
 
 if [ "$MODE" = "wizard" ]; then
   [ -d "$APP_DIR" ] || die "$APP_DIR 不存在，请先正常安装"
@@ -262,7 +268,7 @@ if [ -n "$CUR" ]; then info "当前 ${CUR} → 目标 ${VERSION}"; else info "�
 
 ASSET="souse-linux-${ARCH}.tar.gz"
 BASE="https://github.com/${REPO}/releases/download/${VERSION}"
-TMP=$(mktemp -d)
+TMP=$(mktemp -d "${TMPDIR:-/tmp}/souse.XXXXXX" 2>/dev/null) || TMP=$(mktemp -d /tmp/souse.XXXXXX)
 trap 'rm -rf "$TMP"' EXIT INT TERM
 
 info "下载 ${ASSET} ..."
@@ -284,7 +290,7 @@ tar -xzf "${TMP}/${ASSET}" -C "$TMP"
 SRC=$(find "$TMP" -maxdepth 1 -type d -name 'souse-*' | head -1)
 [ -n "$SRC" ] || die "压缩包结构异常"
 
-# 保留用户已有配置与数据
+# 覆盖程序文件，但保留用户自己的配置、数据、日志
 for item in "$SRC"/*; do
   b=$(basename "$item")
   case "$b" in
@@ -322,7 +328,7 @@ else
   warn "服务没起来，看日志：journalctl -u ${SERVICE} -n 50"
 fi
 
-IP=$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}')
+IP=$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}') || IP=""
 printf '\n'
 if [ "$MODE" = "update" ]; then ok "已更新到 ${VERSION}"; else ok "安装完成 ${VERSION}"; fi
 printf '  管理台   http://%s:8080\n' "${IP:-127.0.0.1}"
@@ -330,7 +336,7 @@ printf '  配置     %s/config.yaml\n' "$APP_DIR"
 printf '  数据     %s/data\n' "$APP_DIR"
 printf '  管理     sousectl start|stop|restart|status|logs|backup|update\n\n'
 
-PW=$(journalctl -u "$SERVICE" --no-pager 2>/dev/null | grep -m1 'Password:' | awk '{print $NF}' || true)
+PW=$(journalctl -u "$SERVICE" --no-pager 2>/dev/null | grep -m1 'Password:' | awk '{print $NF}') || PW=""
 if [ -n "$PW" ]; then
   printf '  %s管理员 admin   初始密码 %s%s\n' "$C_GRN" "$PW" "$C_RST"
   printf '  %s忘了就执行: sudo sousectl password%s\n\n' "$C_DIM" "$C_RST"
