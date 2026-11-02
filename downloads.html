@@ -1,134 +1,436 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Souse 下载中心</title>
+<title>下载 souse · 出租屋管理系统</title>
+<meta name="description" content="souse 自托管安装包下载。Linux 一行命令安装，程序 / 管理台 / 自动备份 / 开机自启一次到位。">
+<meta name="theme-color" content="#060809">
+<meta property="og:title" content="下载 souse · 出租屋管理系统">
+<meta property="og:description" content="Linux 一行命令安装，数据留在自己机器上。">
+<meta property="og:image" content="https://souse.neng.page/og-image.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0e13'/%3E%3Cpath d='M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5' fill='none' stroke='%233DDC97' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<script>
+/* 主题预置：与首页同源（localStorage: souse-theme），防闪烁 */
+(function(){try{var t=localStorage.getItem('souse-theme');
+if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+document.documentElement.dataset.theme=t;
+document.querySelector('meta[name=theme-color]').setAttribute('content',t==='light'?'#f4f6f7':'#060809');}
+catch(e){document.documentElement.dataset.theme='dark';}})();
+</script>
 <style>
-:root { --bg:#0f172a; --card:#1e293b; --accent:#22d3ee; --text:#e2e8f0; --muted:#94a3b8; --border:#334155; }
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; min-height:100vh; }
-.container { max-width:900px; margin:0 auto; padding:2rem 1rem; }
-header { text-align:center; margin-bottom:3rem; }
-h1 { font-size:2.5rem; font-weight:700; margin-bottom:0.5rem; background:linear-gradient(135deg,var(--accent),#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.subtitle { color:var(--muted); font-size:1.1rem; }
-.badge { display:inline-block; background:rgba(34,211,238,0.15); color:var(--accent); padding:0.25rem 0.75rem; border-radius:999px; font-size:0.85rem; margin-top:1rem; }
-.platforms { display:grid; gap:1rem; }
-@media (min-width:640px) { .platforms { grid-template-columns:repeat(2,1fr); } }
-@media (min-width:1024px) { .platforms { grid-template-columns:repeat(3,1fr); } }
-.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; transition:transform .2s,box-shadow .2s; }
-.card:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,0,0,0.3); }
-.card-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; }
-.icon { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
-.icon.linux { background:rgba(34,211,238,0.2); color:var(--accent); }
-.icon.macos { background:rgba(168,85,247,0.2); color:#a855f7; }
-.icon.windows { background:rgba(59,130,246,0.2); color:#3b82f6; }
-.platform-info h3 { font-size:1.1rem; font-weight:600; }
-.platform-info span { color:var(--muted); font-size:0.85rem; }
-.download-btn { display:block; width:100%; padding:0.75rem; background:var(--accent); color:#0f172a; font-weight:600; border:none; border-radius:8px; cursor:pointer; text-align:center; text-decoration:none; transition:opacity .2s; }
-.download-btn:hover { opacity:0.9; }
-.download-btn:disabled { opacity:0.5; cursor:not-allowed; }
-.checksum { margin-top:1rem; padding:0.75rem; background:rgba(0,0,0,0.3); border-radius:6px; font-family:monospace; font-size:0.75rem; color:var(--muted); word-break:break-all; }
-.checksum code { color:var(--text); }
-.ver { color:var(--muted); font-size:0.85rem; text-align:center; margin-top:2rem; }
-.quick-install { background:rgba(34,211,238,0.1); border:1px solid var(--accent); border-radius:12px; padding:1.5rem; margin-bottom:2rem; text-align:center; }
-.quick-install code { background:rgba(0,0,0,0.3); padding:0.5rem 1rem; border-radius:6px; font-size:1rem; display:inline-block; margin:0.5rem 0; }
-.quick-install a { color:var(--accent); }
-footer { text-align:center; color:var(--muted); font-size:0.85rem; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); }
+:root{
+  --bg:#060809; --navbg:rgba(6,8,9,.72); --strip:rgba(255,255,255,.014);
+  --card:rgba(255,255,255,.028); --card-hover:rgba(255,255,255,.05);
+  --chip:rgba(255,255,255,.03); --tile:rgba(255,255,255,.03);
+  --line:rgba(255,255,255,.075); --line-strong:rgba(255,255,255,.14);
+  --ink:#eef2f6; --mut:#8b98a9; --dim:#5d6b7c;
+  --acc-500:#3DDC97; --acc-700:#2D855F; --acc:var(--acc-500);
+  --sky-i:#56c8f5; --violet-i:#a78bfa; --amber-i:#f6c56b; --rose-i:#fb7185;
+  --grad:linear-gradient(100deg,#3ddc97 5%,#56c8f5 55%,#a78bfa 95%);
+  --g1:radial-gradient(closest-side,rgba(61,220,151,.16),transparent);
+  --g2:radial-gradient(closest-side,rgba(86,200,245,.13),transparent);
+  --win-a:#0d1116; --win-b:#0a0e12;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  color-scheme:dark;
+}
+[data-theme=light]{
+  --bg:#f4f6f7; --navbg:rgba(244,246,247,.78); --strip:rgba(8,16,24,.018);
+  --card:rgba(255,255,255,.8); --card-hover:#ffffff;
+  --chip:rgba(255,255,255,.92); --tile:rgba(8,16,24,.032);
+  --line:rgba(8,16,24,.09); --line-strong:rgba(8,16,24,.17);
+  --ink:#0d1216; --mut:#55616f; --dim:#8a95a3;
+  --acc:var(--acc-700); --sky-i:#17739f; --violet-i:#6a4de0; --amber-i:#a06a06; --rose-i:#d42d4b;
+  --grad:linear-gradient(100deg,#0b7c57 5%,#17739f 55%,#6a4de0 95%);
+  --win-a:#ffffff; --win-b:#f2f4f5;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:inherit;text-decoration:none}
+::selection{background:color-mix(in srgb,var(--acc) 28%,transparent)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+body::after{content:"";position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+[data-theme=light] body::after{display:none}
+
+/* ── 玻璃导航（同首页） ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:.3s;border-bottom:1px solid transparent}
+nav.on{background:var(--navbg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom-color:var(--line)}
+.nav-in{display:flex;align-items:center;height:62px;gap:28px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:750;font-size:16.5px;letter-spacing:.3px}
+.logo svg{width:27px;height:27px}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:20px}
+.nav-links{display:flex;gap:26px;font-size:14px;color:var(--mut)}
+.nav-links a{position:relative;transition:.2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a[aria-current]{color:var(--ink)}
+.nav-links a::after{content:"";position:absolute;left:0;right:100%;bottom:-5px;height:1.5px;background:var(--acc);transition:.25s}
+.nav-links a:hover::after,.nav-links a[aria-current]::after{right:0}
+.tt{width:35px;height:35px;border-radius:10px;border:1px solid var(--line-strong);background:var(--chip);color:var(--mut);
+  display:grid;place-items:center;cursor:pointer;transition:.2s;padding:0;flex:none}
+.tt:hover{color:var(--ink);border-color:color-mix(in srgb,var(--acc) 50%,transparent);transform:translateY(-1px)}
+.tt svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tt .i-moon{display:none}
+[data-theme=light] .tt .i-moon{display:block}
+[data-theme=light] .tt .i-sun{display:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:650;border-radius:12px;transition:.18s;cursor:pointer;border:none;font-family:inherit}
+.btn-p{background:linear-gradient(135deg,#3ddc97,#2bb9d9);color:#04150e;padding:13px 28px;font-size:15px;box-shadow:0 8px 26px -10px rgba(61,220,151,.55)}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 14px 34px -10px rgba(61,220,151,.65)}
+.btn-g{border:1px solid var(--line-strong);color:var(--ink);padding:12.5px 26px;font-size:15px;background:var(--chip)}
+.btn-g:hover{border-color:color-mix(in srgb,var(--ink) 35%,transparent);background:var(--card-hover)}
+.btn-s{font-size:13.5px;padding:8px 17px;border-radius:10px}
+.mm{display:none}
+.mm svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+@media(max-width:680px){
+  .nav-in{gap:10px}.nav-r{gap:10px}.mm{display:grid}
+  .tt,.mm{width:36px;height:36px;border-radius:10px}
+  .nav-r .btn-s{height:36px;padding:0 13px;font-size:13px}
+  .nav-links{position:absolute;top:62px;left:0;right:0;flex-direction:column;gap:0;display:none;
+    padding:4px 24px 8px;background:color-mix(in srgb,var(--navbg) 15%,var(--bg));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    box-shadow:0 14px 34px -10px rgba(0,0,0,.28);border-bottom:1px solid var(--line)}
+  nav.open .nav-links{display:flex}
+  nav.open{background:var(--navbg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom-color:var(--line)}
+  .nav-links a{padding:13px 2px;font-size:15px;color:var(--ink);border-bottom:1px solid var(--line)}
+  .nav-links a:last-child{border-bottom:none}
+  .nav-links a::after{display:none}
+}
+
+/* ── 页头 ── */
+.hero{position:relative;padding:132px 0 48px;overflow:hidden}
+.hero .glow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}
+.g1{width:620px;height:460px;top:-180px;left:-140px;background:var(--g1)}
+.g2{width:520px;height:400px;top:-90px;right:-150px;background:var(--g2)}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.08fr .92fr;gap:48px;align-items:start}
+.hero-grid>div,.two>div{min-width:0}
+@media(max-width:940px){.hero-grid{grid-template-columns:1fr;gap:34px}.hero{padding-top:110px}}
+.kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;letter-spacing:2px;color:var(--acc);
+  background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 33%,transparent);padding:6px 15px;border-radius:99px}
+.kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+h1{font-size:clamp(32px,4.6vw,52px);line-height:1.16;margin:24px 0 14px;font-weight:850;letter-spacing:-1px}
+h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-sub{font-size:clamp(15px,2vw,17px);color:var(--mut);max-width:520px}
+.hero-sub b{color:var(--ink);font-weight:650}
+.hero-meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}
+.meta{font-family:var(--mono);font-size:12px;color:var(--mut);border:1px solid var(--line);background:var(--chip);border-radius:9px;padding:6px 13px;transition:.2s}
+.meta:hover{border-color:color-mix(in srgb,var(--acc) 45%,transparent);color:var(--ink)}
+.meta b{color:var(--acc);font-weight:650}
+@media(max-width:680px){.hero-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.meta{text-align:center}}
+
+/* ── 终端块 ── */
+.term{min-width:0;max-width:100%;background:#05070a;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;box-shadow:0 30px 70px -30px rgba(0,0,0,.6)}
+.win-bar{display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--tile)}
+.win-bar i{width:10px;height:10px;border-radius:50%;background:#3a4048}
+.win-bar i:nth-child(1){background:#ff5f57}.win-bar i:nth-child(2){background:#febc2e}.win-bar i:nth-child(3){background:#28c840}
+.win-bar span{margin-left:8px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+.term .win-bar{background:rgba(255,255,255,.04);border-bottom-color:rgba(255,255,255,.08)}
+.term-body{padding:22px 24px;font-family:var(--mono);font-size:13.5px;line-height:2.05;color:#c5d2e0;overflow-x:auto;white-space:nowrap}
+.term-body .c{color:#526274}
+.term-body .p{color:#3ddc97}
+.term-body .u{color:#56c8f5}
+.term-body .ok{color:#3ddc97}
+.term-body::-webkit-scrollbar{height:6px}
+.term-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:3px}
+.term-body::-webkit-scrollbar-track{background:transparent}
+
+/* ── 卡片 ── */
+section{padding:64px 0;position:relative}
+.sec-k{font-family:var(--mono);font-size:12px;color:var(--acc);letter-spacing:3px;text-transform:uppercase}
+.sec-k::before{content:"/ ";color:var(--dim)}
+h2{font-size:clamp(24px,3.2vw,34px);margin:12px 0 10px;font-weight:800;letter-spacing:-.6px;line-height:1.25}
+.sec-d{color:var(--mut);max-width:620px;font-size:15.5px}
+.sec-h{margin-bottom:34px}
+.dl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:720px){.dl-grid{grid-template-columns:1fr}}
+.dl{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;transition:.25s;overflow:hidden}
+.dl:hover{border-color:var(--line-strong);background:var(--card-hover);transform:translateY(-3px)}
+.dl.primary{border-color:color-mix(in srgb,var(--acc) 42%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 7%,transparent),var(--card))}
+.dl-top{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+.ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:none;
+  background:color-mix(in srgb,var(--gc,var(--acc)) 12%,transparent);border:1px solid color-mix(in srgb,var(--gc,var(--acc)) 35%,transparent)}
+.ic svg{width:20px;height:20px;stroke:var(--gc,var(--acc));fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.dl h3{font-size:15.5px;font-weight:720;letter-spacing:-.2px;line-height:1.35}
+.dl .arch{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.4px;display:block;margin-top:1px}
+.fname{font-family:var(--mono);font-size:11.5px;color:var(--mut);word-break:break-all;margin-bottom:6px}
+.fsize{font-family:var(--mono);font-size:11px;color:var(--dim);margin-bottom:16px}
+.dl .btn{width:100%}
+.soon{border:1px dashed var(--line-strong);color:var(--dim);border-radius:12px;padding:11px 16px;font-size:13.5px;text-align:center;font-family:var(--mono)}
+.dl .sha{margin-top:11px;font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center}
+.dl .sha a{color:var(--acc);text-decoration:underline;text-underline-offset:3px}
+.skeleton{height:186px;border-radius:16px;border:1px solid var(--line);background:var(--card);
+  background-image:linear-gradient(100deg,transparent 30%,var(--card-hover) 50%,transparent 70%);background-size:220% 100%;animation:shine 1.5s infinite}
+@keyframes shine{to{background-position:-120% 0}}
+
+/* ── 说明块 ── */
+.note{border:1px solid var(--line);border-left:3px solid var(--amber-i);background:color-mix(in srgb,var(--amber-i) 5%,transparent);border-radius:12px;padding:17px 19px;font-size:14px;color:var(--mut)}
+.note b{color:var(--amber-i)}
+.note+.note{margin-top:12px}
+code{font-family:var(--mono);font-size:.92em;background:var(--chip);border:1px solid var(--line);border-radius:5px;padding:1px 6px;word-break:break-all}
+ol.why{list-style:none;counter-reset:s;display:grid;gap:16px;margin-top:6px}
+ol.why li{counter-increment:s;position:relative;padding-left:44px;font-size:14.5px;color:var(--mut)}
+ol.why li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:2px;font-family:var(--mono);font-size:12px;color:var(--acc);
+  border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);background:color-mix(in srgb,var(--acc) 7%,transparent);width:30px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+ol.why li b{color:var(--ink);font-weight:680;display:block;margin-bottom:2px;font-size:15px}
+ol.why li::after{content:"";position:absolute;left:15px;top:36px;bottom:-10px;width:1px;background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 35%,transparent),transparent)}
+ol.why li:last-child::after{display:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+@media(max-width:880px){.two{grid-template-columns:1fr}}
+
+footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);font-size:13px}
+.foot-in{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.foot-in a{color:var(--mut);transition:.2s}
+.foot-in a:hover{color:var(--acc)}
+.status{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.status i{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc)}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.65,.3,1),transform .7s cubic-bezier(.2,.65,.3,1)}
+.rv.on{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.kicker .dot,.skeleton{animation:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<div class="container">
-<header>
-<p style="text-align:left;margin-bottom:2rem"><a href="/" style="color:var(--muted);text-decoration:none">← 返回首页</a></p>
-<h1>Souse 下载中心</h1>
-<p class="subtitle">出租屋管理系统 · 多平台安装包</p>
-<span class="badge" id="version-badge">加载中…</span>
+
+<nav id="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="currentColor" opacity=".06"/><rect width="64" height="64" rx="15" fill="none" stroke="rgba(128,128,128,.35)"/><path d="M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5" fill="none" stroke="#3DDC97" stroke-width="5" stroke-linecap="round"/></svg>
+      Souse
+    </a>
+    <div class="nav-r">
+      <div class="nav-links">
+        <a href="index.html#features">功能</a>
+        <a href="index.html#arch">怎么运转</a>
+        <a href="index.html#start">快速开始</a>
+        <a href="downloads.html" aria-current="page">下载</a>
+        <a href="agent.html">AI 安装</a>
+        <a href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用</a>
+        <a href="index.html#faq">FAQ</a>
+      </div>
+      <button class="tt" id="tt" title="切换 黑 / 白 主题" aria-label="切换黑白主题">
+        <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5 5l1.8 1.8M17.2 17.2 19 19M19 5l-1.8 1.8M6.8 17.2 5 19"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg>
+      </button>
+      <a class="btn btn-p btn-s" href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">试用 demo</a>
+      <button class="tt mm" id="mm" title="菜单" aria-label="打开菜单" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="glow g1"></div><div class="glow g2"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="kicker"><span class="dot"></span><span id="ver">读取中</span></span>
+      <h1>装在自己机器上，<br><span class="grad">数据不出门</span></h1>
+      <p class="hero-sub">一行命令装完，程序、管理台、<b>每 6 小时自动备份</b>、开机自启一次到位；装完直接把管理员密码打给你。</p>
+      <div class="hero-meta">
+        <span class="meta"><b>Linux</b> x86_64</span>
+        <span class="meta">systemd 常驻</span>
+        <span class="meta">免 Docker</span>
+        <span class="meta">开源免费</span>
+      </div>
+    </div>
+    <div>
+      <div class="term">
+        <div class="win-bar"><i></i><i></i><i></i><span>bash — install</span></div>
+        <div class="term-body">
+<span class="c"># 一行装好（root 权限）</span>
+<span class="p">$</span> curl -fsSL <span class="u">souse.neng.page/install.sh</span> | sudo sh
+<span class="ok">✓ SHA256 校验通过</span>
+<span class="ok">✓ 服务已运行 → http://&lt;本机IP&gt;:8080</span>
+<span class="ok">✓ 管理员 admin   初始密码 ********</span>
+
+<span class="c"># 之后日常</span>
+<span class="p">$</span> sudo sousectl status
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
 
-<div class="quick-install">
-<p style="margin-bottom:0.5rem;">⚡ 推荐：一行命令自动识别平台并安装（Linux）</p>
-<code>curl -fsSL https://souse.neng.page/install.sh | sudo sh</code>
-<p style="margin-top:0.5rem; font-size:0.9rem; color:var(--muted);">装完会直接打印管理台地址和管理员初始密码。只看脚本不执行：<code>curl -fsSL https://souse.neng.page/install.sh</code></p>
-<p style="margin-top:0.5rem; font-size:0.9rem; color:var(--muted);">国内直连 GitHub 太慢时，脚本会在 60 秒后自动切到加速镜像，下载完仍校验 SHA256；也可自己指定 <code>SOUSE_MIRROR=...</code></p>
-</div>
+<section id="packages">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="sec-k">Packages</div>
+      <h2>各平台安装包</h2>
+      <p class="sec-d">下载后解包即用，含程序、管理台静态资源、抄表识别模型与结算单字体。校验文件一并提供，安装脚本会自动核对。</p>
+    </div>
+    <div class="dl-grid" id="grid">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+    <div class="note rv" style="margin-top:18px">
+      <b>国内下载慢？</b> 脚本在 GitHub 直连 60 秒没下完时会自动切到加速镜像，下载完仍校验 SHA256；也可手动指定 <code>SOUSE_MIRROR=...</code> 或加 <code>--mirror-only</code>。
+    </div>
+  </div>
+</section>
 
-<div class="platforms" id="platforms-grid">
-<!-- JS 渲染 -->
-</div>
+<section id="what" style="padding-top:8px">
+  <div class="wrap two">
+    <div class="rv">
+      <div class="sec-h" style="margin-bottom:24px">
+        <div class="sec-k">What you get</div>
+        <h2>装完就有的四件事</h2>
+      </div>
+      <ol class="why">
+        <li><b>常驻服务</b>systemd 托管，崩溃自动重启，开机自启，不用管着它。</li>
+        <li><b>自动备份</b>每天 00 / 06 / 12 / 18 点各备一份数据库，保留 30 天，带 SHA256。</li>
+        <li><b>一条命令管全套</b><code>sousectl start | stop | status | logs | backup | restore | update</code>。</li>
+        <li><b>外网能进</b>配一条 Cloudflare 隧道指向 <code>127.0.0.1:8080</code>，不开放任何入站端口。</li>
+      </ol>
+    </div>
+    <div class="rv">
+      <div class="sec-h" style="margin-bottom:24px">
+        <div class="sec-k">Manual install</div>
+        <h2>不想跑脚本，手动也行</h2>
+      </div>
+      <div class="term">
+        <div class="win-bar"><i></i><i></i><i></i><span>manual</span></div>
+        <div class="term-body">
+<span class="c"># 1. 解包到 /opt/souse</span>
+<span class="p">$</span> sudo mkdir -p /opt/souse && sudo tar -xzf \
+    souse-linux-amd64.tar.gz -C /opt/souse --strip-components=1
+
+<span class="c"># 2. 用自带的示例配置起服务（第一个参数就是配置文件）</span>
+<span class="p">$</span> cd /opt/souse
+<span class="p">$</span> sudo cp config.example.yaml config.yaml
+<span class="p">$</span> sudo ./610souse config.yaml
+<span class="ok">✓ 初始管理员密码会打印在日志里</span>
+        </div>
+      </div>
+      <div class="note" style="margin-top:14px">
+        手动方式不会自动注册服务、备份和自启；要这些效果就跑安装脚本，或参考 <a href="https://github.com/fuweineng/souse#readme" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:underline;text-underline-offset:3px">仓库说明</a>自己配 systemd。
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="req" style="padding-top:8px">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="sec-k">Requirements</div>
+      <h2>跑它需要什么</h2>
+    </div>
+    <div class="hero-meta rv">
+      <span class="meta">Linux <b>x86_64</b></span>
+      <span class="meta">Debian 12 / Ubuntu 22.04+</span>
+      <span class="meta">内存 <b>≥ 1 GB</b></span>
+      <span class="meta">磁盘 <b>≥ 5 GB</b></span>
+      <span class="meta">端口 <b>8080</b>（管理台/API）</span>
+      <span class="meta">端口 <b>8090</b>（MCP）</span>
+    </div>
+    <div class="note rv" style="margin-top:18px">
+      <b>macOS / Windows 暂无安装包。</b>本版只发布 Linux x86_64 二进制；其它平台需要从源码自行编译，下载页不会给你一个装不上的包。
+    </div>
+  </div>
+</section>
 
 <footer>
-<p>所有产物均由 GitHub Actions 自动构建，附带 SHA256 校验文件</p>
-<p><a href="https://github.com/fuweineng/souse/releases" target="_blank" style="color:var(--accent);">查看完整发布历史 →</a></p>
+  <div class="wrap foot-in">
+    <div>© 2026 Souse · 出租屋管理系统</div>
+    <div class="status"><i></i>souse.neng.page · 持续在线</div>
+    <div>
+      <a href="https://github.com/fuweineng/souse/releases" target="_blank" rel="noopener">全部版本</a> ·
+      <a href="https://github.com/fuweineng/souse" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="index.html">返回首页</a> ·
+      <a href="https://demo.neng.page/login?demo=1" target="_blank" rel="noopener">在线试用</a>
+    </div>
+  </div>
 </footer>
-</div>
 
 <script>
-const PLATFORMS = [
-{id:"linux-amd64", name:"Linux", arch:"x86_64", ext:"tar.gz", icon:"🐧", class:"linux"},
-{id:"linux-arm64", name:"Linux", arch:"ARM64", ext:"tar.gz", icon:"🐧", class:"linux"},
-{id:"darwin-amd64", name:"macOS", arch:"Intel (x86_64)", ext:"tar.gz", icon:"🍎", class:"macos"},
-{id:"darwin-arm64", name:"macOS", arch:"Apple Silicon (ARM64)", ext:"tar.gz", icon:"🍎", class:"macos"},
-{id:"windows-amd64", name:"Windows", arch:"x86_64", ext:"zip", icon:"🪟", class:"windows"},
+// 玻璃导航 + 移动端菜单（与首页同一份行为）
+(function(){
+  const nav=document.getElementById('nav'), mm=document.getElementById('mm');
+  addEventListener('scroll',()=>nav.classList.toggle('on',scrollY>24),{passive:true});
+  const close=()=>{nav.classList.remove('open');mm.setAttribute('aria-expanded','false')};
+  mm.addEventListener('click',()=>{const open=nav.classList.toggle('open');mm.setAttribute('aria-expanded',String(open))});
+  document.querySelectorAll('.nav-links a,.nav-r .btn').forEach(a=>a.addEventListener('click',close));
+  document.addEventListener('click',e=>{if(nav.classList.contains('open')&&!nav.contains(e.target))close()});
+  addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  nav.classList.toggle('on',scrollY>24);
+})();
+// 黑白主题
+(function(){
+  const tt=document.getElementById('tt'), meta=document.querySelector('meta[name=theme-color]');
+  tt.addEventListener('click',()=>{
+    const cur=document.documentElement.dataset.theme==='light'?'light':'dark';
+    const next=cur==='light'?'dark':'light';
+    document.documentElement.dataset.theme=next;
+    meta.setAttribute('content',next==='light'?'#f4f6f7':'#060809');
+    try{localStorage.setItem('souse-theme',next)}catch(e){}
+    tt.setAttribute('aria-pressed',String(next==='light'));
+  });
+})();
+// 滚动渐显
+(function(){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+})();
+
+/* ── 平台清单（只有 Linux x86_64 有产物，其余如实标注） ── */
+const PLATFORMS=[
+  {os:'Linux', arch:'x86_64 · 最常见', files:['souse-linux-amd64.tar.gz'], primary:true, svg:'<path d="M12 3.2c2.2 0 3.4 1.7 3.4 4 0 1.6-.6 2.5-.6 3.6 0 1 1.7 2.6 2.6 5 .4 1.1-.2 1.9-1.2 1.9h-1.1c-.6 0-.9-.4-1.4-.4h-3.4c-.5 0-.8.4-1.4.4H8c-1 0-1.6-.8-1.2-1.9.9-2.4 2.6-4 2.6-5 0-1.1-.6-2-.6-3.6 0-2.3 1.2-4 3.2-4Z"/><circle cx="10.6" cy="7.4" r=".7" fill="currentColor" stroke="none"/><circle cx="13.4" cy="7.4" r=".7" fill="currentColor" stroke="none"/>'},
+  {os:'Linux', arch:'ARM64', files:['souse-linux-arm64.tar.gz'], primary:false, svg:'<path d="M12 3.2c2.2 0 3.4 1.7 3.4 4 0 1.6-.6 2.5-.6 3.6 0 1 1.7 2.6 2.6 5 .4 1.1-.2 1.9-1.2 1.9h-1.1c-.6 0-.9-.4-1.4-.4h-3.4c-.5 0-.8.4-1.4.4H8c-1 0-1.6-.8-1.2-1.9.9-2.4 2.6-4 2.6-5 0-1.1-.6-2-.6-3.6 0-2.3 1.2-4 3.2-4Z"/><circle cx="10.6" cy="7.4" r=".7" fill="currentColor" stroke="none"/><circle cx="13.4" cy="7.4" r=".7" fill="currentColor" stroke="none"/>'},
+  {os:'macOS', arch:'Intel · Apple Silicon', files:['souse-darwin-arm64.tar.gz','souse-darwin-amd64.tar.gz'], primary:false, gc:'--sky-i', svg:'<path d="M15.6 8.6c0-1.5 1.2-2.3 1.3-2.4-.7-1-1.8-1.2-2.2-1.2-.9-.1-1.7.5-2.2.5-.5 0-1.2-.5-2-.5-1 0-2 .6-2.6 1.6-1.1 1.9-.3 4.7.8 6.2.5.7 1.1 1.5 1.9 1.5.8 0 1.1-.5 2-.5.9 0 1.2.5 2 .5.8 0 1.4-.8 1.9-1.5.4-.6.7-1.2.9-1.8-1.9-.7-1.8-3.1-1.8-3.4Z"/><path d="M14.2 4.3c.4-.5.6-1.1.5-1.8-.6 0-1.3.4-1.7.9-.4.4-.7 1.1-.6 1.7.7.1 1.4-.3 1.8-.8Z"/>'},
+  {os:'Windows', arch:'x86_64', files:['souse-windows-amd64.zip'], primary:false, gc:'--violet-i', svg:'<path d="M4 6.4l7-1v6.2l-7 .1V6.4Z"/><path d="M12.4 5.2L20 4v7.6l-7.6.1V5.2Z"/><path d="M4 12.6l7-.1v6.1l-7-1v-5Z"/><path d="M12.4 12.6l7.6-.1V20l-7.6-1.2v-6.2Z"/>'}
 ];
 
-async function fetchLatestRelease() {
-try {
-const res = await fetch('https://api.github.com/repos/fuweineng/souse/releases/latest');
-if (!res.ok) throw new Error('API 请求失败');
-const data = await res.json();
-return data;
-} catch (e) {
-console.error(e);
-return null;
-}
-}
+const REPO='fuweineng/souse';
+const grid=document.getElementById('grid');
+const verEl=document.getElementById('ver');
 
-function renderPlatforms(release) {
-const grid = document.getElementById('platforms-grid');
-const version = release?.tag_name || 'v?.?.?';
-document.getElementById('version-badge').textContent = `最新版本: ${version}`;
+function fmtSize(n){return (n/1048576).toFixed(1)+' MB'}
 
-const assets = new Map((release?.assets || []).map(a => [a.name, a]));
-
-PLATFORMS.forEach(p => {
-const assetName = `souse-${p.id}.${p.ext}`;
-const asset = assets.get(assetName);
-const checksumName = `${assetName}.sha256`;
-const checksumAsset = assets.get(checksumName);
-
-const card = document.createElement('div');
-card.className = 'card';
-
-let btnHtml = '';
-let checksumHtml = '';
-
-if (asset) {
-btnHtml = `<a class="download-btn" href="${asset.browser_download_url}" download>下载 ${assetName} (${(asset.size/1024/1024).toFixed(1)} MB)</a>`;
-if (checksumAsset) {
-checksumHtml = `<div class="checksum">SHA256: <code>${checksumAsset.name}</code> — <a href="${checksumAsset.browser_download_url}" target="_blank" style="color:var(--accent);">查看校验文件</a></div>`;
-}
-} else {
-btnHtml = `<button class="download-btn" disabled>尚未发布该平台</button>`;
-checksumHtml = `<div class="checksum">当前发行版只提供 Linux x86_64 二进制包。</div>`;
+function card(p, assets){
+  const fname=(p.files||[p.file]).find(f=>assets.has(f));
+  const a=fname?assets.get(fname):null;
+  const sum=fname?assets.get(fname+'.sha256'):null;
+  const el=document.createElement('article');
+  el.className='dl'+(p.primary&&a?' primary':'');
+  const style=p.gc?` style="--gc:var(${p.gc})"`:'';
+  let action, sha='';
+  if(a){
+    action=`<a class="btn btn-p" href="${a.browser_download_url}" download>下载安装包</a>`;
+    sha=`<div class="sha">${sum?`<a href="${sum.browser_download_url}" target="_blank" rel="noopener">SHA256 校验文件</a>`:'—'}</div>`;
+  }else{
+    action=`<div class="soon">尚未发布</div>`;
+    sha=`<div class="sha">本版只提供 Linux x86_64</div>`;
+  }
+  el.innerHTML=`
+    <div class="dl-top">
+      <span class="ic"${style}><svg viewBox="0 0 24 24">${p.svg}</svg></span>
+      <div><h3>${p.os}</h3><span class="arch">${p.arch}</span></div>
+    </div>
+    <div class="fname">${fname||p.files[0]}</div>
+    <div class="fsize">${a?fmtSize(a.size):'—'}</div>
+    ${action}
+    ${sha}`;
+  return el;
 }
 
-card.innerHTML = `
-<div class="card-header">
-<span class="icon ${p.class}">${p.icon}</span>
-<div class="platform-info">
-<h3>${p.name} ${p.arch}</h3>
-<span>${assetName}</span>
-</div>
-</div>
-${btnHtml}
-${checksumHtml}
-`;
-grid.appendChild(card);
-});
-}
-
-fetchLatestRelease().then(renderPlatforms);
+(async function(){
+  try{
+    const r=await fetch(`https://api.github.com/repos/${REPO}/releases/latest`,{headers:{Accept:'application/vnd.github+json'}});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    verEl.textContent=d.tag_name+' · 最新版本';
+    const assets=new Map((d.assets||[]).map(x=>[x.name,x]));
+    grid.innerHTML='';
+    PLATFORMS.forEach(p=>grid.appendChild(card(p,assets)));
+  }catch(e){
+    verEl.textContent='版本信息暂不可用';
+    grid.innerHTML='';
+    PLATFORMS.forEach(p=>grid.appendChild(card(p,new Map())));
+    const n=document.createElement('div');
+    n.className='note';n.style.marginTop='18px';
+    n.innerHTML='<b>读不到版本信息。</b>GitHub API 可能被限流或网络不通，可以直接去 <a href="https://github.com/fuweineng/souse/releases" target="_blank" rel="noopener" style="color:var(--acc)">Releases 页面</a> 取包。';
+    grid.after(n);
+  }
+})();
 </script>
 </body>
 </html>
