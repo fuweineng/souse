@@ -1,10 +1,10 @@
 ﻿# souse 一键安装（Windows）
 #
 #   一行安装：
-#     irm https://souse.neng.page/install.ps1 | iex
+#     irm https://souse.dpxon.com/install.ps1 | iex
 #
 #   常用参数：
-#     & ([scriptblock]::Create((irm https://souse.neng.page/install.ps1))) -Port 8080
+#     & ([scriptblock]::Create((irm https://souse.dpxon.com/install.ps1))) -Port 8080
 #     irm ... | iex; Uninstall-Souse        # 卸载（保留数据）
 #
 # 对标 magpie 的部分：一行装完 → 自动建配置 → 注册开机自启 → 起服务 → 打印访问地址与初始密码。

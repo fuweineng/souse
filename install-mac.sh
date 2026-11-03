@@ -1,7 +1,7 @@
 #!/bin/sh
 # souse 一键安装（macOS，含 Apple Silicon / Intel）
 #
-#   curl -fsSL https://souse.neng.page/install-mac.sh | sh
+#   curl -fsSL https://souse.dpxon.com/install-mac.sh | sh
 #
 # 与 Linux 版的差别（都是平台特性逼出来的）：
 #   · 不写系统目录、不需要 sudo：装到 ~/Library/Application Support/souse
@@ -240,7 +240,7 @@ case "\${1:-status}" in
   status)  launchctl print "gui/\$(id -u)/\$LABEL" 2>/dev/null | sed -n '1,12p' || echo "未注册" ;;
   logs)    tail -n "\${2:-80}" "\$APP_DIR/logs/souse.log" ;;
   tunnel)  sh "\$APP_DIR/tunnel.sh" ;;
-  update)  curl -fsSL https://souse.neng.page/install-mac.sh | sh ;;
+  update)  curl -fsSL https://souse.dpxon.com/install-mac.sh | sh ;;
   version) cat "\$APP_DIR/VERSION" 2>/dev/null ;;
   *)       echo "用法: souse {start|stop|restart|status|logs [n]|tunnel|update|version}" ;;
 esac

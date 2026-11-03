@@ -1,5 +1,5 @@
 #!/bin/sh
-# souse — 一行安装：curl -fsSL https://souse.neng.page/install.sh | sudo sh
+# souse — 一行安装：curl -fsSL https://souse.dpxon.com/install.sh | sudo sh
 #
 # 目标：一台 Linux（有 systemd）电脑，一行命令装完，自动打印管理员密码。
 # 产物来源：https://github.com/fuweineng/souse/releases
@@ -41,7 +41,7 @@ while [ $# -gt 0 ]; do
       cat <<'EOF'
 souse 安装脚本
 
-用法: curl -fsSL https://souse.neng.page/install.sh | sudo sh -s -- [选项]
+用法: curl -fsSL https://souse.dpxon.com/install.sh | sudo sh -s -- [选项]
 
 选项:
   --update-only   只更新程序，保留数据与配置
@@ -126,7 +126,7 @@ write_service() {
   cat > "/etc/systemd/system/${SERVICE_NAME}.service" <<EOF
 [Unit]
 Description=souse 出租屋管理系统
-Documentation=https://souse.neng.page
+Documentation=https://souse.dpxon.com
 After=network-online.target
 Wants=network-online.target
 
@@ -243,7 +243,7 @@ case "$cmd" in
   enable)  systemctl enable "$SERVICE";  g "已设为开机自启" ;;
   disable) systemctl disable "$SERVICE"; g "已取消开机自启" ;;
   config)  "${EDITOR:-vi}" "$APP_DIR/config.yaml" && systemctl restart "$SERVICE" && g "已重启" ;;
-  update)  curl -fsSL https://souse.neng.page/install.sh | sh -s -- --update-only ;;
+  update)  curl -fsSL https://souse.dpxon.com/install.sh | sh -s -- --update-only ;;
   password|mkpasswd)
            journalctl -u "$SERVICE" --no-pager | sed -n 's/.*Password: *\([A-Za-z0-9]\{6,\}\).*/\1/p' | tail -1 | grep . || e "日志里没有初始密码（可能已改过）" ;;
   backup)  systemctl start "$SERVICE-backup.service" && g "备份完成，见 $APP_DIR/data/backups" ;;

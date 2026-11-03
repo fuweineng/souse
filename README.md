@@ -1,6 +1,6 @@
 # souse.neng.page
 
-[Souse · 出租屋智能管理平台](https://souse.neng.page) 项目介绍站，GitHub Pages 托管。
+[Souse · 出租屋智能管理平台](https://souse.dpxon.com) 项目介绍站，GitHub Pages 托管。
 
 - 单文件静态站：`index.html`
 - 自定义域名：`CNAME` → souse.neng.page（Cloudflare 橙云代理）
@@ -10,7 +10,7 @@
 
 | 路径 | 内容 |
 |------|------|
-| `/install.sh` | 一行安装脚本：`curl -fsSL https://souse.neng.page/install.sh \| sudo sh` |
+| `/install.sh` | 一行安装脚本：`curl -fsSL https://souse.dpxon.com/install.sh \| sudo sh` |
 | `/downloads.html` | 下载页，运行时读 GitHub Releases API 列出各平台安装包 |
 
 安装包本身放在本仓库的 **Releases**（`gh release create v1.0.0 ...`），因为 GitHub Pages 仓库天然是公网可访问的静态空间，安装脚本按 `releases/latest` 取最新版：
@@ -28,7 +28,7 @@ gh release create v1.0.1 souse-linux-amd64.tar.gz{,.sha256} -R fuweineng/souse -
 
 ## 在线试用入口
 
-官网的「在线试用」按钮统一指向 **https://demo.neng.page/login**（正式后台 `:8080`）。
+官网的「在线试用」按钮统一指向 **https://app.dpxon.com/login**（正式后台 `:8080`）。
 
 - 试用账号：`trial` / `souse2026`
 - 账号范围：仅「试用演示楼」（building `DEMO`）——6 间房（4 在租 / 2 空置）+ 4 位演示住户 + 7 笔演示账单，看不到任何真实房源
@@ -52,12 +52,18 @@ sqlite3 "$DB" "UPDATE users SET password='<bcrypt hash>' WHERE username='trial';
 sqlite3 "$DB" "UPDATE users SET status='disabled' WHERE username='trial';"
 ```
 
-配套的公开入口来自 CT203 的 cloudflared 隧道 ingress：
+配套的公开入口来自 CT203 的 cloudflared 隧道 ingress（宿主入口在 CT204，`/etc/cloudflared/config.yml`）：
 
 ```yaml
-  - hostname: demo.neng.page
-    service: http://192.168.100.65:8080
+  - hostname: app.dpxon.com
+    service: https://192.168.100.53
+    originRequest:
+      originServerName: app.dpxon.com
+      noTLSVerify: true
 ```
 
-DNS：Cloudflare CNAME `demo.neng.page` → `<tunnel-id>.cfargotunnel.com`（proxied）。
-注意 Cloudflare Universal SSL **只覆盖一级子域**，所以入口用 `demo.neng.page` 而不是 `demo.souse.neng.page`。
+DNS：Cloudflare CNAME `app.dpxon.com` → `b995ad32-d007-4dff-9e7c-f4aede454e36.cfargotunnel.com`（proxied）。
+`app.dpxon.com` 与旧的 `cz.neng.page` 是同一台源站（`192.168.100.65:8080`）的两个入口，两边并行。
+
+注意 Cloudflare Universal SSL **只覆盖一级子域**，所以入口用 `app.dpxon.com` 而不是 `app.souse.dpxon.com`。
+
