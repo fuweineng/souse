@@ -20,7 +20,13 @@ param(
     [switch]$NoAutostart,
     [switch]$Update,
     [switch]$Uninstall,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [string]$Package = "",   # 本地 zip 包路径：给了就不联网下载（离线/内网安装）
+    [string]$Launcher = "",  # 桌面入口 exe（SouseApp.exe）：给了就复制并建快捷方式
+    [string]$AdminUser = "",  # 房东账号（本地部署的首个账号）
+    [string]$AdminPass = "",
+    [string]$AdminEmail = "",
+    [switch]$NoShortcuts
 )
 
 $ErrorActionPreference = "Stop"
@@ -158,6 +164,59 @@ function Register-Autostart([string]$dir) {
     Write-Ok "已注册登录自启（计划任务 $TaskName）"
 }
 
+function New-DesktopShortcuts([string]$dir) {
+    # 双击即用：快捷方式指向 SouseApp.exe（无控制台、无地址栏窗口）
+    if ($NoShortcuts) { Write-Warn2 "按要求跳过快捷方式"; return }
+    $app = Join-Path $dir "SouseApp.exe"
+    if (-not (Test-Path $app)) { return }
+    try {
+        $ws = New-Object -ComObject WScript.Shell
+        $targets = @(
+            [Environment]::GetFolderPath('Desktop'),
+            (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs')
+        )
+        foreach ($t in $targets) {
+            if (-not (Test-Path $t)) { continue }
+            $lnk = $ws.CreateShortcut((Join-Path $t 'Souse.lnk'))
+            $lnk.TargetPath = $app
+            $lnk.WorkingDirectory = $dir
+            $lnk.Description = 'Souse 出租屋管理系统'
+            $lnk.Save()
+        }
+        Write-Ok "已创建桌面与开始菜单快捷方式"
+    } catch { Write-Warn2 "快捷方式创建失败：$($_.Exception.Message)" }
+}
+
+function Set-AdminBlock([string]$cfgPath, [string]$user, [string]$pass, [string]$mail) {
+    # 发行包自带的 config.yaml.example 里本来就有一段 admin（username: admin / 空密码），
+    # 所以不能「看到 admin 就跳过」——那样用户设置的账号永远不生效。
+    # 正确做法：把已有的 admin 段整段删掉，再写入用户填的账号。
+    if (-not $user) { return $false }
+    if ($pass.Length -lt 6) { Write-Err "管理员密码至少 6 位"; exit 1 }
+    if ($mail -and $mail -notmatch '^[^@\s]+@[^@\s]+\.[^@\s]+$') { Write-Warn2 "邮箱格式看着不对，仍写入：$mail" }
+
+    $lines = Get-Content $cfgPath
+    $out = New-Object System.Collections.Generic.List[string]
+    $skip = $false
+    foreach ($l in $lines) {
+        if ($l -match '^admin:\s*$') { $skip = $true; continue }
+        if ($skip -and $l -match '^[ \t]+\S') { continue }
+        $skip = $false
+        $out.Add($l)
+    }
+
+    $u = $user.Replace('"', '')
+    $m = $mail.Replace('"', '')
+    $out.Add("admin:")
+    $out.Add("    username: `"$u`"")
+    $out.Add("    password: `"$pass`"")
+    if ($m) { $out.Add("    email: `"$m`"") }
+    $out.Add("    standalone: true")
+    Set-Content -Path $cfgPath -Value ($out -join "`r`n") -Encoding UTF8
+    Write-Ok "已写入房东账号 $u（本地部署，首个账号即房东）"
+    return $true
+}
+
 function Stop-Souse {
     Get-Process -Name "610souse" -ErrorAction SilentlyContinue | Stop-Process -Force
     Start-Sleep -Milliseconds 800
@@ -204,14 +263,35 @@ function Show-Result([string]$dir, [int]$port) {
     $logFile = Join-Path $log "souse.log"
     if (Test-Path $logFile) {
         $u = Select-String -Path $logFile -Pattern 'Username:\s*([^"\s]+)' | Select-Object -Last 1
-        $p = Select-String -Path $logFile -Pattern 'Password:\s*([^"\s]+)' | Select-Object -Last 1
-        if ($u) { Write-Host "  用户名  ： $($u.Matches[0].Groups[1].Value)" -ForegroundColor Yellow }
-        if ($p) { Write-Host "  初始密码： $($p.Matches[0].Groups[1].Value)" -ForegroundColor Yellow }
-        Write-Host "  （只显示一次；日志在 $logFile）" -ForegroundColor DarkGray
+        if ($script:AdminFromUser) {
+            Write-Host "  登录账号： $AdminUser（密码与邮箱按你设置，可直接登录）" -ForegroundColor Yellow
+        } elseif ($u) {
+            $p = Select-String -Path $logFile -Pattern 'Password:\s*([^"\s]+)' | Select-Object -Last 1
+            Write-Host "  用户名  ： $($u.Matches[0].Groups[1].Value)" -ForegroundColor Yellow
+            if ($p) { Write-Host "  初始密码： $($p.Matches[0].Groups[1].Value)" -ForegroundColor Yellow }
+            Write-Host "  （只显示一次；日志在 $logFile）" -ForegroundColor DarkGray
+        }
     }
     Write-Host ""
     Write-Host "  公网访问：装好后运行  $dir\souse.cmd tunnel  跟着提示开通" -ForegroundColor Cyan
     Write-Host ""
+
+    # 机器可读结果（ASCII，跨控制台编码安全；图形安装器与 macOS 安装器按这些行解析）
+    Write-Host "[SOUSE] url=http://127.0.0.1:$port"
+    if ($lan) { Write-Host "[SOUSE] lan=http://$($lan):$port" }
+    Write-Host "[SOUSE] dir=$dir"
+    if (Test-Path (Join-Path $dir "SouseApp.exe")) { Write-Host "[SOUSE] shortcut=Souse" }
+    if (Test-Path (Join-Path $log "souse.log")) {
+        $uu = Select-String -Path (Join-Path $log "souse.log") -Pattern 'Username:\s*([^"\s]+)' | Select-Object -Last 1
+        $pp = Select-String -Path (Join-Path $log "souse.log") -Pattern 'Password:\s*([^"\s]+)' | Select-Object -Last 1
+        if ($script:AdminFromUser) {
+            Write-Host "[SOUSE] user=$AdminUser"
+            Write-Host "[SOUSE] user_chosen=1"
+        } else {
+            if ($uu) { Write-Host "[SOUSE] user=$($uu.Matches[0].Groups[1].Value)" }
+            if ($pp) { Write-Host "[SOUSE] password=$($pp.Matches[0].Groups[1].Value)" }
+        }
+    }
 }
 
 # ─────────────────────────── 卸载 ───────────────────────────
@@ -223,17 +303,29 @@ if ($Uninstall) {
     exit 0
 }
 
+# 桌面入口：命令行版/单文件版都可能带一个 SouseApp.exe 在同目录
+if (-not $Launcher -and $PSScriptRoot) {
+    $cand = Join-Path $PSScriptRoot "SouseApp.exe"
+    if (Test-Path $cand) { $Launcher = $cand }
+}
+
 # ─────────────────────────── 安装 / 更新 ───────────────────────────
 Write-Step "souse 安装器（Windows / $(Get-Arch)）"
 
 $arch = Get-Arch
 $assetName = "souse-windows-$arch.zip"
 
-Write-Step "查询最新版本"
-$rel = Get-LatestRelease
-$version = $rel.tag_name
-if (-not $version) { Write-Err "取不到版本号（检查网络）"; exit 1 }
-Write-Ok "最新版本 $version"
+if ($Package) {
+    if (-not (Test-Path $Package)) { Write-Err "本地安装包不存在：$Package"; exit 1 }
+    $version = if ((Split-Path $Package -Leaf) -match '(\d+\.\d+\.\d+)') { $Matches[1] } else { "local" }
+    Write-Ok "使用本地安装包 $version（不联网）"
+} else {
+    Write-Step "查询最新版本"
+    $rel = Get-LatestRelease
+    $version = $rel.tag_name
+    if (-not $version) { Write-Err "取不到版本号（检查网络）"; exit 1 }
+    Write-Ok "最新版本 $version"
+}
 
 if ($Update -and (Test-Path (Join-Path $InstallDir "VERSION"))) {
     $cur = (Get-Content (Join-Path $InstallDir "VERSION") -Raw).Trim()
@@ -241,22 +333,38 @@ if ($Update -and (Test-Path (Join-Path $InstallDir "VERSION"))) {
     Write-Step "升级 $cur → $version"
 }
 
-$asset = $rel.assets | Where-Object { $_.name -eq $assetName } | Select-Object -First 1
-if (-not $asset) { Write-Err "Release 里没有 $assetName"; exit 1 }
-$sumAsset = $rel.assets | Where-Object { $_.name -eq "$assetName.sha256" } | Select-Object -First 1
+$asset = $null; $sumAsset = $null
+if (-not $Package) {
+    $asset = $rel.assets | Where-Object { $_.name -eq $assetName } | Select-Object -First 1
+    if (-not $asset) { Write-Err "Release 里没有 $assetName"; exit 1 }
+    $sumAsset = $rel.assets | Where-Object { $_.name -eq "$assetName.sha256" } | Select-Object -First 1
+}
 
 $tmp = Join-Path $env:TEMP ("souse-" + [guid]::NewGuid().ToString("N").Substring(0, 8))
 New-Item -ItemType Directory -Path $tmp -Force | Out-Null
 $zip = Join-Path $tmp $assetName
 
-Write-Step "下载 $assetName（$([math]::Round($asset.size/1MB,1)) MB）"
-if ($DryRun) { Write-Ok "dry-run：跳过下载"; exit 0 }
-if (-not (Save-FileWithMirrors $asset.browser_download_url $zip)) {
-    Write-Err "下载失败（直连与镜像都不通）"; exit 1
+if ($Package) {
+    if (-not (Test-Path $Package)) { Write-Err "本地安装包不存在：$Package"; exit 1 }
+    Copy-Item $Package $zip -Force
+    Write-Step "使用本地安装包 $Package（跳过下载）"
+    $sumFile = "$Package.sha256"
+    if (Test-Path $sumFile) {
+        $want = ((Get-Content $sumFile -Raw).Trim() -split '\s+')[0].ToLower()
+        $got = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+        if ($want -ne $got) { Write-Err "SHA256 不匹配（期望 $want，实际 $got）→ 拒绝安装"; exit 1 }
+        Write-Ok "SHA256 校验通过"
+    }
+} else {
+    Write-Step "下载 $assetName（$([math]::Round($asset.size/1MB,1)) MB）"
+    if ($DryRun) { Write-Ok "dry-run：跳过下载"; exit 0 }
+    if (-not (Save-FileWithMirrors $asset.browser_download_url $zip)) {
+        Write-Err "下载失败（直连与镜像都不通）"; exit 1
+    }
 }
 
 # SHA256 校验：有校验文件就必须过，否则拒绝安装
-if ($sumAsset) {
+if ($sumAsset -and -not $Package) {
     $sumFile = Join-Path $tmp "sum.txt"
     if (Save-FileWithMirrors $sumAsset.browser_download_url $sumFile) {
         $want = ((Get-Content $sumFile -Raw).Trim() -split '\s+')[0].ToLower()
@@ -283,7 +391,16 @@ Set-Content -Path (Join-Path $InstallDir "VERSION") -Value $version -Encoding AS
 Write-Ok "已解压到 $InstallDir"
 
 New-Config $InstallDir $Port
+$script:AdminFromUser = Set-AdminBlock (Join-Path $InstallDir "config.yaml") $AdminUser $AdminPass $AdminEmail
 New-Launcher $InstallDir
+
+if ($Launcher -and (Test-Path $Launcher)) {
+    Copy-Item $Launcher (Join-Path $InstallDir "SouseApp.exe") -Force
+    New-DesktopShortcuts $InstallDir
+} else {
+    Write-Warn2 "没有桌面入口 exe（SouseApp.exe），跳过快捷方式"
+}
+
 Register-Autostart $InstallDir
 
 $port = (Select-String -Path (Join-Path $InstallDir "config.yaml") -Pattern "rest_port:\s*(\d+)").Matches.Groups[1].Value

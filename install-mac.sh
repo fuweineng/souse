@@ -33,6 +33,7 @@ case "$(uname -m)" in
   *) die "不支持的架构: $(uname -m)" ;;
 esac
 
+HERE_DIR=$(cd "$(dirname "$0")" && pwd)
 APP_DIR="${SOUSE_DIR:-$HOME/Library/Application Support/$APP_NAME}"
 BIN_NAME="610souse"
 PLIST="$HOME/Library/LaunchAgents/page.neng.souse.plist"
@@ -195,6 +196,34 @@ EOF
 }
 gen_config
 
+# ── 房东账号（本地部署：首个账号就是房东，不走平台）──────────
+write_admin_block() {
+  cfg="$APP_DIR/config.yaml"
+  [ -n "${SOUSE_ADMIN_USER:-}" ] || return 0
+  if [ ${#SOUSE_ADMIN_PASS} -lt 6 ]; then
+    die "管理员密码至少 6 位"
+  fi
+  # 发行包的 config.yaml.example 自带 admin 段（username: admin / 空密码），
+  # 直接跳过会让用户设置的账号永远不生效 —— 整段删掉再写。
+  awk '
+    /^admin:[[:space:]]*$/ { skip = 1; next }
+    skip && /^[[:space:]]/ { next }
+    { skip = 0; print }
+  ' "$cfg" > "$cfg.tmp" && mv "$cfg.tmp" "$cfg"
+
+  {
+    printf 'admin:\n'
+    printf '    username: "%s"\n' "$SOUSE_ADMIN_USER"
+    printf '    password: "%s"\n' "$SOUSE_ADMIN_PASS"
+    if [ -n "${SOUSE_ADMIN_EMAIL:-}" ]; then
+      printf '    email: "%s"\n' "$SOUSE_ADMIN_EMAIL"
+    fi
+    printf '    standalone: true\n'
+  } >> "$cfg"
+  ok "已写入房东账号 $SOUSE_ADMIN_USER（本地部署）"
+}
+write_admin_block
+
 # ── launchd 服务 ────────────────────────────────────────
 write_agent() {
   mkdir -p "$(dirname "$PLIST")"
@@ -273,6 +302,89 @@ if [ "${SOUSE_NO_START:-0}" != "1" ]; then
   done
 fi
 
+# ── 桌面入口：~/Applications/Souse.app
+#    LaunchServices 只把 Mach-O 当可执行体，脚本型 bundle 会被拒（open 报 -10669），
+#    所以用 osacompile 生成 applet，让它去跑 Resources 里的启动脚本。
+write_mac_app() {
+  APP_BUNDLE="$HOME/Applications/Souse.app"
+  mkdir -p "$HOME/Applications"
+  rm -rf "$APP_BUNDLE"
+
+  LAUNCH_SH="${TMPDIR:-/tmp}/souse-launch.sh"
+  cat > "$LAUNCH_SH" <<LAUNCH
+#!/bin/sh
+# 端口以 config.yaml 为准（用户改过端口也不会失效），取不到才用安装时的默认值
+PORT=\$(grep -Eo '^[[:space:]]*rest_port:[[:space:]]*[0-9]+' "\$HOME/Library/Application Support/souse/config.yaml" 2>/dev/null | grep -Eo '[0-9]+$' | head -1)
+[ -n "\$PORT" ] || PORT=$PORT
+launchctl kickstart -k "gui/\$(id -u)/$LABEL" >/dev/null 2>&1
+i=0
+while [ \$i -lt 60 ]; do
+  curl -fsS --max-time 1 "http://127.0.0.1:\$PORT/" >/dev/null 2>&1 && break
+  sleep 0.5
+  i=\$((i+1))
+done
+URL="http://127.0.0.1:\$PORT/"
+if [ -d "/Applications/Google Chrome.app" ]; then
+  exec open -na "Google Chrome" --args --app="\$URL" --window-size=1360,900
+elif [ -d "/Applications/Microsoft Edge.app" ]; then
+  exec open -na "Microsoft Edge" --args --app="\$URL" --window-size=1360,900
+elif [ -d "/Applications/Brave Browser.app" ]; then
+  exec open -na "Brave Browser" --args --app="\$URL"
+else
+  open "\$URL"
+fi
+LAUNCH
+  chmod +x "$LAUNCH_SH"
+
+  if command -v osacompile >/dev/null 2>&1; then
+    AS="${TMPDIR:-/tmp}/souse-launch.applescript"
+    cat > "$AS" <<'ASCRIPT'
+on run
+	try
+		do shell script "/bin/sh " & quoted form of (POSIX path of (path to resource "souse-launch.sh"))
+	on error errMsg number errNum
+		display alert "Souse" message errMsg
+	end try
+end run
+ASCRIPT
+    osacompile -o "$APP_BUNDLE" "$AS" || return 0
+    cp "$LAUNCH_SH" "$APP_BUNDLE/Contents/Resources/souse-launch.sh"
+    chmod +x "$APP_BUNDLE/Contents/Resources/souse-launch.sh"
+    ICON=""
+    for c in "$HERE_DIR/AppIcon.icns" "$HERE_DIR/../AppIcon.icns" "$APP_DIR/AppIcon.icns"; do
+      [ -f "$c" ] && ICON="$c" && break
+    done
+    if [ -n "$ICON" ]; then
+      cp "$ICON" "$APP_BUNDLE/Contents/Resources/applet.icns"
+      /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile applet.icns" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || \
+        /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string applet.icns" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
+    fi
+    /usr/libexec/PlistBuddy -c "Set :CFBundleName Souse" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Souse" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier page.neng.souse" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
+    codesign --force --deep --sign - "$APP_BUNDLE" >/dev/null 2>&1 || true
+  else
+    # 老系统退回脚本型 bundle（LaunchServices 可能拒绝，仅兜底）
+    mkdir -p "$APP_BUNDLE/Contents/MacOS"
+    cp "$LAUNCH_SH" "$APP_BUNDLE/Contents/MacOS/Souse"
+    chmod +x "$APP_BUNDLE/Contents/MacOS/Souse"
+    cat > "$APP_BUNDLE/Contents/Info.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleName</key><string>Souse</string>
+<key>CFBundleExecutable</key><string>Souse</string>
+<key>CFBundleIdentifier</key><string>page.neng.souse</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleVersion</key><string>$VERSION</string>
+</dict></plist>
+PLIST
+  fi
+  touch "$APP_BUNDLE"
+}
+write_mac_app
+
 LAN=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)
 printf '\n'
 printf '  %s本机访问：%s http://127.0.0.1:%s\n' "$C_GRN" "$C_RST" "$PORT"
@@ -280,15 +392,36 @@ printf '  %s本机访问：%s http://127.0.0.1:%s\n' "$C_GRN" "$C_RST" "$PORT"
 printf '  安装目录： %s\n' "$APP_DIR"
 printf '  配置    ： %s\n' "$APP_DIR/config.yaml"
 printf '  日志    ： %s\n' "$LOG_FILE"
+printf '  桌面入口： %s\n' "$HOME/Applications/Souse.app"
 
+U=""
+P=""
 if [ -f "$LOG_FILE" ]; then
   U=$(grep -o 'Username: [^"]*' "$LOG_FILE" 2>/dev/null | tail -1 | awk '{print $2}')
   P=$(grep -o 'Password: [^"]*' "$LOG_FILE" 2>/dev/null | tail -1 | awk '{print $2}')
-  [ -n "$U" ] && printf '  %s用户名  ：%s %s\n' "$C_YEL" "$C_RST" "$U"
-  [ -n "$P" ] && printf '  %s初始密码：%s %s\n' "$C_YEL" "$C_RST" "$P"
-  printf '  （只显示一次；重装不会改密码）\n'
+  if [ -n "${SOUSE_ADMIN_USER:-}" ]; then
+    printf '  %s房东账号：%s %s（密码与邮箱按你设置）\n' "$C_YEL" "$C_RST" "$SOUSE_ADMIN_USER"
+  else
+    [ -n "$U" ] && printf '  %s用户名  ：%s %s\n' "$C_YEL" "$C_RST" "$U"
+    [ -n "$P" ] && printf '  %s初始密码：%s %s\n' "$C_YEL" "$C_RST" "$P"
+    printf '  （只显示一次；重装不会改密码）\n'
+  fi
 fi
 
 printf '\n'
 printf '  %s公网访问：%s 运行  souse tunnel  跟着提示开通（Cloudflare Tunnel，免公网 IP）\n' "$C_BLU" "$C_RST"
+printf '\n'
+
+# 机器可读结果（ASCII；图形安装器按这些行解析，避免中文与 ANSI 颜色干扰）
+printf '[SOUSE] url=http://127.0.0.1:%s\n' "$PORT"
+[ -n "$LAN" ] && printf '[SOUSE] lan=http://%s:%s\n' "$LAN" "$PORT"
+printf '[SOUSE] dir=%s\n' "$APP_DIR"
+printf '[SOUSE] app=%s\n' "$HOME/Applications/Souse.app"
+if [ -n "${SOUSE_ADMIN_USER:-}" ]; then
+  printf '[SOUSE] user=%s\n' "$SOUSE_ADMIN_USER"
+  printf '[SOUSE] user_chosen=1\n'
+else
+  [ -n "$U" ] && printf '[SOUSE] user=%s\n' "$U"
+  [ -n "$P" ] && printf '[SOUSE] password=%s\n' "$P"
+fi
 printf '\n'
