@@ -297,7 +297,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
       <!-- 第 1 格 -->
       <fieldset class="pcard">
         <legend><span class="pnum">01</span>准备服务器</legend>
-        <p class="pcard-d">需要一台 Linux 服务器 / 电脑 / NAS，<b>已装 Docker</b>，并且你的电脑能 SSH 上去。下面填 Agent 要连的那台机器。</p>
+        <p class="pcard-d">需要一台<b>有 systemd 的 Linux</b>（服务器 / 小主机 / 虚拟机），并且你的电脑能 SSH 上去。下面填 Agent 要连的那台机器。</p>
         <div class="pfields">
           <div class="pf">
             <label for="srvHost">服务器 IP 或主机名</label>
@@ -388,7 +388,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
       <!-- 生成的提示词 -->
       <div class="prompt">
         <div class="prompt-h"><b>PROMPT</b> · 随填写实时更新，尖括号里的内容记得先改 <button class="cpbtn" id="cp" type="button">复制提示词</button></div>
-<pre id="gen">请帮我把 souse（开源出租屋管理系统）装在这台 Linux 服务器上，并设好管理员密码。
+<pre id="gen">请帮我把 souse（自托管出租屋管理系统）装在这台 Linux 服务器上，并设好管理员密码。
 
 服务器：&lt;你的服务器IP&gt;（SSH 用户 root）
 我的设备：&lt;勾选你有的设备；没有的项不用配，跳过即可&gt;
@@ -427,199 +427,134 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
   <div class="wrap">
     <div class="sec-k">Steps</div>
     <h2>五步装完，第 3 步必须过</h2>
-    <p class="sec-d">全程只需要 Docker。安装目录自己定（示例用 <code>~/souse</code>），数据、备份、密钥都在这个目录里，搬机器连同目录一起搬走即可。</p>
+    <p class="sec-d">当前版本是 <b>Go 单二进制 + systemd 服务</b>，不再通过容器或源码构建。安装目录默认 <code>/opt/souse</code>，数据库、备份、配置都在里面；搬机器连同这个目录一起搬走即可。</p>
 
     <!-- 1 -->
     <div class="step">
       <div class="step-h"><span class="step-n">STEP 1</span><h2>前置检查</h2></div>
-      <p>先确认三件事：Docker 在、端口空着、磁盘够。命令原样贴给 Agent：</p>
+      <p>先确认四件事：systemd 在、端口空着、磁盘够、能访问 GitHub。命令原样贴给 Agent：</p>
       <div class="term">
         <div class="bar"><i></i><i></i><i></i><span>bash — preflight</span></div>
-<pre><span class="c"># Docker 与 compose 插件</span>
-<span class="p">$</span> docker --version &amp;&amp; docker compose version
-<span class="c"># 8080 是否被占用（没有输出以外的报错，并打印「8080 空闲」即通过）</span>
+<pre><span class="c"># systemd 是否存在（没有输出的版本号才算通过）</span>
+<span class="p">$</span> systemctl --version | head -1
+<span class="c"># 8080 是否被占用（打印「8080 空闲」即通过）</span>
 <span class="p">$</span> ss -ltnp | grep :8080 || echo "8080 空闲"
-<span class="c"># 当前目录剩余空间，建议 ≥ 5G</span>
-<span class="p">$</span> df -h . | tail -1</pre>
+<span class="c"># /opt 剩余空间，建议 ≥ 5G</span>
+<span class="p">$</span> df -h /opt | tail -1
+<span class="c"># 下载工具</span>
+<span class="p">$</span> curl --version | head -1</pre>
       </div>
       <ul class="pass">
-        <li><b>Docker</b>：两条命令都打印版本号；<span class="cmd">docker compose version</span> 报 <span class="cmd">unknown command</span> 说明只装了旧版 compose，先装 compose 插件。</li>
-        <li><b>端口</b>：出现 <b>8080 空闲</b>，或 <span class="cmd">grep</span> 没有任何输出（两者都算端口可用）；有进程占着就记住它，第 2 步会撞上。</li>
-        <li><b>磁盘</b>：<b>Avail</b> 那一列 ≥ 5G。镜像 + 构建缓存比较占地方，小于 2G 基本会 build 失败。</li>
+        <li><b>systemd</b>：<span class="cmd">systemctl --version</span> 打印版本号；报 <span class="cmd">command not found</span> 说明是容器或精简系统，不能按本页安装。</li>
+        <li><b>端口</b>：出现 <b>8080 空闲</b>，或 <span class="cmd">grep</span> 没有任何输出（两者都算可用）。</li>
+        <li><b>磁盘</b>：<b>Avail</b> 那一列 ≥ 5G；小于 2G 会在解压/备份时失败。</li>
+        <li><b>网络</b>：能访问 GitHub Releases；国内网络慢时安装器会自动走镜像，SHA256 仍会校验。</li>
       </ul>
-      <div class="note"><b>没有 Docker 时：</b>让 Agent 按发行版装官方 Docker Engine + compose 插件，装完重跑上面三条。不要用系统自带的旧版 <span class="mono">docker.io</span> 凑数。</div>
+      <div class="note"><b>系统要求：</b>一台有 systemd 的 Linux（云主机、小主机、虚拟机都行），需要 root 或 sudo。群晖/威联通等 NAS 的原生系统通常没有完整 systemd，建议用虚拟机或小主机，不要硬改 NAS 系统。</div>
     </div>
 
     <!-- 2 -->
     <div class="step">
       <div class="step-h"><span class="step-n">STEP 2</span><h2>安装</h2></div>
-      <p>取代码 → 配管理员密码 → 构建启动。第一次构建要拉镜像，<b>通常 2–5 分钟</b>，慢网络会更久，不要中途 Ctrl-C。</p>
+      <p>一条命令下载并安装。安装器会取最新 Release、校验 SHA256、装到 <code>/opt/souse</code>、创建 <code>souse</code> 系统用户和 systemd 服务，并在结尾打印管理员初始密码。</p>
       <div class="term">
         <div class="bar"><i></i><i></i><i></i><span>bash — install</span></div>
-<pre><span class="c"># 1. 取代码</span>
-<span class="p">$</span> git clone https://github.com/fuweineng/souse.git
-<span class="p">$</span> cd souse
+<pre><span class="c"># 下载安装脚本</span>
+<span class="p">$</span> curl -fsSL https://souse.dpxon.com/install.sh -o install.sh
+<span class="c"># 执行安装（需要 root）</span>
+<span class="p">$</span> sudo sh install.sh
 
-<span class="c"># 2. 配置：至少设置管理员密码（必填）</span>
-<span class="p">$</span> cp .env.example .env
-<span class="c">#    编辑 .env，把 S610_ADMIN_PASSWORD 改成你要的密码</span>
-<span class="c">#    S610_JWT_SECRET 可以留空：首次启动会自动生成并写入 data/jwt_secret</span>
-
-<span class="c"># 3. 构建并启动（首次会拉镜像，耐心等）</span>
-<span class="p">$</span> docker compose up -d --build
-
-<span class="c"># 4. 等健康检查变 healthy</span>
-<span class="p">$</span> docker compose ps</pre>
+<span class="c"># 安装完成后检查服务</span>
+<span class="p">$</span> sudo sousectl status
+<span class="c"># 如果没记下结尾打印的密码</span>
+<span class="p">$</span> sudo sousectl password</pre>
       </div>
       <ul class="pass">
-        <li><b>密码已设置</b>：<span class="cmd">grep S610_ADMIN_PASSWORD .env</span> 不是空值；空着服务起不来或无法登录。</li>
-        <li><b>容器在跑</b>：<span class="cmd">docker compose ps</span> 里 <b>souse</b> 的状态先是 <b>Up (health starting)</b>，等 30–60 秒再看应变成 <b>Up (healthy)</b>。</li>
-        <li><b>端口绑定</b>：服务监听 <b>8080</b>，compose 里绑 <b>127.0.0.1:8080</b>——只对本机回源，公网要靠 Caddy 或 Cloudflare 隧道（见第 5 步）。</li>
+        <li><b>服务在跑</b>：<span class="cmd">sousectl status</span> 显示 <b>active (running)</b>。</li>
+        <li><b>密码已拿到</b>：安装结尾会打印 <b>管理员 admin / 初始密码</b>；也可以随时用 <span class="cmd">sousectl password</span> 查看。</li>
+        <li><b>监听 8080</b>：<span class="cmd">ss -ltnp | grep :8080</span> 能看到 souse 进程；默认只监听本机，公网访问见第 5 步。</li>
       </ul>
-      <div class="note"><b>数据在哪：</b>业务数据在 <code>./data</code>；自带 backup 容器每 <b>21600 秒（6 小时）</b> 热备 SQLite 到 <code>./backups</code>，保留 <b>14 天</b>。这两个目录不要手动改，升级和搬家都靠它们。</div>
+      <div class="note"><b>数据在哪：</b>数据库在 <code>/opt/souse/data/db/souse.db</code>，备份在 <code>/opt/souse/data/backups</code>；自动备份每 6 小时一次（00/06/12/18 点），保留 30 天。升级用 <code>sudo sousectl update</code>，会保留数据和配置。</div>
     </div>
 
     <!-- 3 -->
     <div class="step">
       <div class="step-h"><span class="step-n">STEP 3</span><h2>验收</h2></div>
-      <p><b>这一步不能省。</b>下面四条是判断「装好没装好」的唯一标准，每条都给出「通过」长什么样：</p>
+      <p><b>这一步不能省。</b>下面四条是判断「装好没装好」的唯一标准：</p>
       <div class="term">
         <div class="bar"><i></i><i></i><i></i><span>bash — verify</span></div>
-<pre><span class="p">$</span> docker compose ps
-<span class="p">$</span> curl -sf http://localhost:8080/healthz &amp;&amp; echo OK
-<span class="p">$</span> ls -l data/jwt_secret
-<span class="p">$</span> docker compose logs --tail=20 souse</pre>
+<pre><span class="c"># 1. 服务状态</span>
+<span class="p">$</span> sudo systemctl is-active souse
+<span class="p">$</span> curl -fsS http://127.0.0.1:8080/health
+<span class="c"># 2. 最近日志（不应有 panic / fatal）</span>
+<span class="p">$</span> sudo journalctl -u souse -n 50 --no-pager
+<span class="c"># 3. 本机访问地址</span>
+<span class="p">$</span> sudo sousectl url</pre>
       </div>
       <ul class="pass">
-        <li><b>容器健康</b>：<span class="cmd">docker compose ps</span> 中 souse 那行是 <b>Up (healthy)</b>。只显示 Up、括号里是 starting，就再等 30 秒重看。</li>
-        <li><b>健康端点</b>：<span class="cmd">curl -sf http://localhost:8080/healthz &amp;&amp; echo OK</span> <b>必须打印 OK</b>。连接被拒、超时、什么都没打印，都是失败。</li>
-        <li><b>密钥已持久化</b>：<span class="cmd">ls -l data/jwt_secret</span> 能看到文件（不是 <span class="cmd">No such file</span>）。这说明 JWT 密钥已生成并落盘，重启不会把登录态全踢掉。</li>
-        <li><b>日志干净</b>：<span class="cmd">docker compose logs --tail=20 souse</span> 最近 20 行里没有 <b>panic</b> / <b>fatal</b>。有就贴原文，别自己判断「不影响」。</li>
+        <li><b>服务 active</b>：<span class="cmd">systemctl is-active souse</span> 输出 <b>active</b>。</li>
+        <li><b>健康检查 200</b>：<span class="cmd">/health</span> 返回 <span class="cmd">{"status":"ok",...}</span>。注意公开健康端点是 <span class="cmd">/health</span>，不是 <span class="cmd">/api/health</span>；后者要登录，会返回 401。</li>
+        <li><b>日志干净</b>：最近 50 行没有 <b>panic</b> / <b>fatal</b>；有就贴原文给 Agent，不要自行判断「不影响」。</li>
+        <li><b>能登录</b>：浏览器打开 <span class="cmd">http://服务器IP:8080</span>，用 <b>admin</b> + 初始密码登录，能看到管理台。</li>
       </ul>
-      <div class="note danger"><b>任意一条不通过，就是没装好，不要宣布成功。</b>把失败命令和它的原始输出一起交给用户，再按下方「失败对照」处理。</div>
     </div>
 
     <!-- 4 -->
     <div class="step">
-      <div class="step-h"><span class="step-n">STEP 4</span><h2>配置向导</h2></div>
-      <p>浏览器打开 <code>http://&lt;主机&gt;:8080</code>，首次访问会<b>自动弹出 6 步向导</b>。超管走完整 6 步；房东 / 助手账号只走「楼栋房间 + 水电表」两步。</p>
-      <div class="note ok"><b>完成判定：</b><b>楼栋房间</b> + <b>收款码</b> 两项配齐，系统即判定向导完成（<span class="mono">completed=true</span>），可以开始收租。其余步骤都是可选的。</div>
-
-      <h3 style="font-size:16px;font-weight:720;margin:22px 0 8px">必做两项 <span class="tag must">核心</span></h3>
-      <ul class="pass">
-        <li><b>楼栋房间</b>：楼栋名称、房间号、租金。这是整个系统的骨架，没有它账单和房态都无处落脚。</li>
-        <li><b>收款码</b>：上传微信 / 支付宝收款码图片，住户扫码付款时看到的就是它。</li>
-      </ul>
-
-      <h3 style="font-size:16px;font-weight:720;margin:22px 0 8px">可选三项 <span class="tag opt">有就配，没有就跳过</span></h3>
-      <ul class="pass">
-        <li><b>水电表（云沐 iyunmu）</b>：填 <span class="cmd">iyunmu_username</span> / <span class="cmd">iyunmu_password</span>。配好后对着表拍照即可 OCR 抄表、自动算费。<b>没有云沐表就跳过</b>——读数手填，账单照常生成，核心功能不受影响。</li>
-        <li><b>爱快路由</b>：填 <span class="cmd">ikuai_host</span> / <span class="cmd">ikuai_username</span> / <span class="cmd">ikuai_password</span>。配好后欠费断网、缴费恢复、按房间限速。源码注释写明这一步「可选」。<b>没有爱快就跳过</b>——宽带账号手工登记；MikroTik / RouterOS、TP-Link 同样支持，在设置里选对应类型。</li>
-        <li><b>海康门禁</b>：填 <span class="cmd">hikiot_app_key</span> / <span class="cmd">hikiot_app_secret</span>，支持 ISAPI 直连，或走海康云眸开放平台 + WebConsole。<b>没有海康门禁就跳过</b>——门禁功能不启用，收租、账单、合同、住户手机页一切照旧。</li>
-      </ul>
-
-      <div id="matrix" style="margin-top:26px">
-        <div class="sec-k">Capability Matrix</div>
-        <h3 style="font-size:18px;font-weight:780;margin:8px 0 6px;letter-spacing:-.2px">设备能力矩阵</h3>
-        <p class="sec-d">只对接下表里的品牌。没有对应硬件时，跳过向导里那一步即可，<b>不会让系统不可用</b>；不在这张表里的品牌，目前<b>暂不支持</b>，不要引导用户硬接。</p>
-        <div class="tbl">
-          <table>
-            <thead>
-              <tr><th>类别</th><th>支持的品牌 / 方式</th><th>没有这个设备时</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>门禁</th>
-                <td><span class="yes">海康</span> · ISAPI 直连 / 海康云眸开放平台 + WebConsole</td>
-                <td><span class="skip">没有就跳过这一步</span>；门禁功能不启用，其它功能不受影响。</td>
-              </tr>
-              <tr>
-                <th>网络</th>
-                <td><span class="yes">爱快</span> · <span class="yes">MikroTik / RouterOS</span> · <span class="yes">TP-Link</span></td>
-                <td><span class="skip">没有就跳过</span>；宽带账号手工登记，断网/恢复改由人工处理。</td>
-              </tr>
-              <tr>
-                <th>水电表</th>
-                <td><span class="yes">云沐</span>（iyunmu） · 拍照 OCR 抄表</td>
-                <td><span class="skip">没有就跳过</span>；读数手填，算费和账单照常。</td>
-              </tr>
-              <tr>
-                <th>监控</th>
-                <td><span class="yes">大华</span> NVR</td>
-                <td><span class="skip">没有就跳过</span>；只是看不到画面，不影响管理。</td>
-              </tr>
-              <tr>
-                <th>其它品牌</th>
-                <td><span class="no">暂不支持</span>（未集成）</td>
-                <td>不要硬接、不要假设兼容；保持跳过即可。</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="note"><b>一句话：</b>核心两项配完就能用。设备是加分项，不是门槛——没有硬件就跳过对应步骤，功能不受影响。</div>
+      <div class="step-h"><span class="step-n">STEP 4</span><h2>初始化与备份</h2></div>
+      <p>登录后按向导建楼栋/房间；有海康门禁、爱快/MikroTik 路由、云沐水电表就填凭据，没有就跳过，收租和账单不受影响。</p>
+      <div class="term">
+        <div class="bar"><i></i><i></i><i></i><span>bash — backup</span></div>
+<pre><span class="c"># 立即做一份手动备份</span>
+<span class="p">$</span> sudo sousectl backup
+<span class="c"># 看最近 10 份备份</span>
+<span class="p">$</span> sudo sousectl backups</pre>
       </div>
+      <ul class="pass">
+        <li><b>楼栋/房间已建</b>：管理台能看到刚建的楼栋和房间。</li>
+        <li><b>至少一份备份</b>：<span class="cmd">sousectl backups</span> 能列出刚生成的 <span class="cmd">souse-*.db</span>。</li>
+        <li><b>硬件可选</b>：设备不在手边就跳过；后续在设置页补凭据即可，不要为了验收伪造成功。</li>
+      </ul>
     </div>
 
     <!-- 5 -->
     <div class="step">
       <div class="step-h"><span class="step-n">STEP 5</span><h2>外网访问</h2><span class="opt">可选</span></div>
-      <p>默认只监听 <b>127.0.0.1:8080</b>，本机可用、公网进不来。要让住户和自己在外面访问，用 Cloudflare 隧道，不开放任何入站端口。</p>
+      <p>不要把 8080 直接映射到公网。用 Caddy/Nginx 反向代理并配 TLS，或 Cloudflare Tunnel 指向本机 8080。</p>
       <div class="term">
-        <div class="bar"><i></i><i></i><i></i><span>bash — tunnel</span></div>
-<pre><span class="c"># 先在 .env 里填 CLOUDFLARE_TUNNEL_TOKEN</span>
-<span class="p">$</span> docker compose --profile tunnel up -d</pre>
+        <div class="bar"><i></i><i></i><i></i><span>Caddyfile — example</span></div>
+<pre><span class="c"># Caddy 反代示例（域名解析到本机后）</span>
+souse.example.com {
+    reverse_proxy 127.0.0.1:8080
+}</pre>
       </div>
       <ul class="pass">
-        <li><b>token 已配</b>：<span class="cmd">grep CLOUDFLARE_TUNNEL_TOKEN .env</span> 有值，否则隧道容器会反复重启。</li>
-        <li><b>隧道在跑</b>：<span class="cmd">docker compose ps</span> 能看到 tunnel 容器 Up；Cloudflare 面板里隧道状态为 <b>Healthy</b>。</li>
-        <li><b>不需要隧道就跳过</b>：只在内网用，或前面已有 Caddy / Nginx 反代，这一步直接略过，不影响验收。</li>
+        <li><b>HTTPS 可访问</b>：浏览器打开自己的域名，证书有效，能登录。</li>
+        <li><b>8080 未暴露</b>：公网扫描不到 8080；只开放 80/443 或走隧道。</li>
+        <li><b>登录仍正常</b>：外网登录后能打开房间/账单页，不是只看到登录框。</li>
       </ul>
+      <div class="note"><b>Cloudflare Tunnel：</b>隧道 public hostname 指向 <code>http://127.0.0.1:8080</code> 即可，不需要在路由器上做端口映射。</div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════ 失败对照 ═══════════ -->
+<!-- ═══════════ 排错 ═══════════ -->
 <section id="trouble">
   <div class="wrap">
     <div class="sec-k">Troubleshooting</div>
-    <h2>失败对照表</h2>
-    <p class="sec-d">Agent 遇到报错先查这里，按「现象 → 处理」走；处理完回到第 3 步重跑验收，不要跳过验收直接说好了。</p>
+    <h2>装挂了，先看这张表</h2>
+    <p class="sec-d">按现象查，不要一上来就重装。所有命令都是只读或可逆的；删数据前必须先备份。</p>
     <div class="tbl">
       <table>
-        <thead>
-          <tr><th>现象</th><th>怎么确认</th><th>怎么处理</th></tr>
-        </thead>
+        <thead><tr><th>现象</th><th>处理</th></tr></thead>
         <tbody>
-          <tr>
-            <th>8080 被占用</th>
-            <td><span class="mono">ss -ltnp | grep :8080</span> 能看到别的进程</td>
-            <td>先停掉占用进程；或在 <code>.env</code> 改 <code>SOUSE_PORT</code> 后重新 <code>docker compose up -d</code>。</td>
-          </tr>
-          <tr>
-            <th>镜像拉不动</th>
-            <td>卡在 <b>Pulling</b> / timeout / TLS 错误</td>
-            <td>重试；换网络或配置镜像加速；先 <code>docker pull</code> 再 <code>docker compose up -d --build</code>。</td>
-          </tr>
-          <tr>
-            <th>build 失败</th>
-            <td>退出码非 0，日志里是编译或磁盘错误</td>
-            <td>看 <code>docker compose logs</code>；用 <code>df -h .</code> 确认磁盘；核对 Docker 版本是否支持 compose 文件。</td>
-          </tr>
-          <tr>
-            <th>页面打不开，但容器 healthy</th>
-            <td><code>curl -sf http://localhost:8080/healthz</code> 本机能通，浏览器连不上</td>
-            <td>端口绑的是 <b>127.0.0.1</b>：从本机访问，或配 Cloudflare 隧道（第 5 步）。</td>
-          </tr>
-          <tr>
-            <th>向导没弹</th>
-            <td>打开直接进登录页 / 工作台</td>
-            <td>登录后到「控制台 → 系统设置」里重新运行向导。</td>
-          </tr>
-          <tr>
-            <th><span class="mono">/mcp/sse</span> 返回 401</th>
-            <td>请求被拒，日志提示缺 token</td>
-            <td><code>S610_MCP_SECRET</code> 非空时，<code>/mcp/sse</code> 要求带 <code>X-MCP-Token</code> 头；补上或把该项留空。</td>
-          </tr>
+          <tr><td>服务起不来</td><td><code>sudo journalctl -u souse -n 100 --no-pager</code> 看第一段报错；常见是端口占用、配置写错、目录权限。</td></tr>
+          <tr><td>8080 被占用</td><td><code>ss -ltnp | grep :8080</code> 找到进程；停掉冲突服务，或在 <code>/opt/souse/config.yaml</code> 改监听端口后 <code>sudo systemctl restart souse</code>。</td></tr>
+          <tr><td>忘了管理员密码</td><td><code>sudo sousectl password</code> 查看初始密码；仍登录不了就看日志里是否有账号锁定/迁移提示。</td></tr>
+          <tr><td>下载/安装很慢</td><td>重跑安装脚本；国内网络可加 <code>--mirror-only</code>，或设置 <code>SOUSE_MIRROR</code> 为可用镜像前缀。SHA256 始终校验。</td></tr>
+          <tr><td>磁盘满了</td><td><code>df -h /opt/souse</code>；用 <code>sousectl backups</code> 看旧备份，确认最新备份可用后再清理过期文件。</td></tr>
+          <tr><td>设备离线</td><td>先在管理台设备页看凭据和局域网连通性；不要直接改数据库。确认设备 IP、账号、端口未被防火墙拦截。</td></tr>
+          <tr><td>想升级</td><td><code>sudo sousectl update</code>；升级前先 <code>sudo sousectl backup</code>，升级后按第 3 步重新验收。</td></tr>
         </tbody>
       </table>
     </div>
@@ -631,19 +566,22 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
   <div class="wrap">
     <div class="sec-k">Rollback</div>
     <h2>回滚 / 还原</h2>
-    <p class="sec-d">装错了、想重来，停掉容器就行，<b>数据不会丢</b>。重新 <code>docker compose up -d</code> 就能回到原来的状态。</p>
+    <p class="sec-d">装错了、想重来，先停服务；<b>数据不会因为停服务而丢失</b>。要回到某个备份，用 <code>sousectl restore</code>，它会二次确认并自动重启。</p>
     <div class="term">
       <div class="bar"><i></i><i></i><i></i><span>bash — rollback</span></div>
-<pre><span class="c"># 停掉并移除容器（保留数据目录）</span>
-<span class="p">$</span> docker compose down
+<pre><span class="c"># 1. 先做一份当前状态备份（防止回滚后才发现要旧的）</span>
+<span class="p">$</span> sudo sousectl backup
 
-<span class="c"># 想彻底重来：先备份，再删 data/（这一步会丢数据，非必要别做）</span>
-<span class="p">$</span> cp -a data backups/manual-$(date +%F)</pre>
+<span class="c"># 2. 看有哪些备份</span>
+<span class="p">$</span> sudo sousectl backups
+
+<span class="c"># 3. 用指定备份覆盖数据库并重启（会提示 y/N）</span>
+<span class="p">$</span> sudo sousectl restore /opt/souse/data/backups/souse-YYYYmmdd-HHMMSS.db</pre>
     </div>
     <ul class="pass">
-      <li><b>数据在 <code>./data</code></b>：SQLite 库、上传的收款码、<code>data/jwt_secret</code> 都在这里，<span class="cmd">down</span> 不会删。</li>
-      <li><b>备份在 <code>./backups</code></b>：backup 容器每 6 小时热备一次，保留 14 天；要恢复，停服务后用备份文件替换 <code>data</code> 里的库再启动。</li>
-      <li><b>不要用 <span class="cmd">docker compose down -v</span> 清数据</b>：除非用户明确说要清空，且已确认有可用备份。</li>
+      <li><b>数据在 <code>/opt/souse/data</code></b>：SQLite 库、上传的收款码、<code>data/jwt_secret</code> 都在这里，停服务不会删。</li>
+      <li><b>备份在 <code>/opt/souse/data/backups</code></b>：每 6 小时自动备份，保留 30 天；恢复会覆盖当前库，操作前先再备份一次。</li>
+      <li><b>不要删整个安装目录</b>：除非用户明确要求清空且已确认有可用备份；不要动 <code>/opt</code> 下的其他目录。</li>
     </ul>
     <div class="note"><b>给 Agent：</b>回滚是破坏性操作。执行前先确认用户意图，先备份再动手；<b>不要删除整个安装目录</b>，也不要动 <code>/opt</code> 等系统路径。</div>
   </div>
@@ -833,7 +771,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--dim);fon
     var u=user.value.trim()||'<你的SSH用户>';
     var block=buildingBlock();
     var lines=[
-      '请帮我把 souse（开源出租屋管理系统）装在这台 Linux 服务器上，并设好管理员密码。',
+      '请帮我把 souse（自托管出租屋管理系统）装在这台 Linux 服务器上，并设好管理员密码。',
       '',
       '服务器：'+h+'（SSH 用户 '+u+'）',
       deviceLine()

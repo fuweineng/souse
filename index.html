@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#060809">
 <title>Souse · 出租屋管理系统</title>
-<meta name="description" content="Souse 管出租屋与公寓：收租催缴、电子合同、门禁网络、水电抄表、住户手机页。开源免费，部署在你自己的机器上。">
+<meta name="description" content="Souse 管出租屋与公寓：收租催缴、电子合同、门禁网络、水电抄表、住户手机页。免费自托管，部署在你自己的机器上。">
 <link rel="canonical" href="https://souse.dpxon.com/">
 <meta property="og:title" content="Souse · 出租屋管理系统">
-<meta property="og:description" content="租金、合同、门禁、网络、水电共用一份数据。开源免费，自托管。">
+<meta property="og:description" content="租金、合同、门禁、网络、水电共用一份数据。免费自托管。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://souse.dpxon.com/">
 <meta property="og:image" content="https://souse.dpxon.com/og-image.png">
@@ -19,7 +19,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Souse · 出租屋管理系统">
-<meta name="twitter:description" content="租金、合同、门禁、网络、水电共用一份数据。开源免费，自托管。">
+<meta name="twitter:description" content="租金、合同、门禁、网络、水电共用一份数据。免费自托管。">
 <meta name="twitter:image" content="https://souse.dpxon.com/og-image.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0e13'/%3E%3Cpath d='M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 24 6 24 17 0 6-5 9-12 9-5 0-10-2-13-5' fill='none' stroke='%233DDC97' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
 <script>
@@ -33,7 +33,7 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/i18n.js"></script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Souse","alternateName":"souse","url":"https://souse.dpxon.com/","image":"https://souse.dpxon.com/og-image.png","description":"Souse 管出租屋和公寓：收租催缴、电子合同、门禁网络、水电抄表、住户手机页，开源免费，装在自己的电脑或 NAS 上。","applicationCategory":"BusinessApplication","operatingSystem":"自托管 / Docker"}
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Souse","alternateName":"souse","url":"https://souse.dpxon.com/","image":"https://souse.dpxon.com/og-image.png","description":"Souse 管出租屋和公寓：收租催缴、电子合同、门禁网络、水电抄表、住户手机页，免费自托管，装在自己的电脑、小主机或云服务器上。","applicationCategory":"BusinessApplication","operatingSystem":"Linux (systemd) / 自托管"}
 </script>
 <!-- Cloudflare Web Analytics（beacon token 打进页面即公开，无账号权限） -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2bf4dabbbd7b4ee7a472ecc2f8daf3a2"}'></script>
@@ -84,7 +84,7 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
         <a class="btn btn-g" href="#start" data-i18n="hero.cta2">部署到自己的机器</a>
       </div>
       <div class="hero-meta rv">
-        <span class="meta" data-i18n="hero.m1">开源免费 · 无订阅费</span>
+        <span class="meta" data-i18n="hero.m1">免费自托管 · 无订阅费</span>
         <span class="meta" data-i18n="hero.m2">数据留在本地</span>
         <span class="meta" data-i18n="hero.m3">无硬件绑定</span>
         <span class="meta" data-i18n="hero.m4">手机与电脑都能用</span>
@@ -227,7 +227,7 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
     <div class="sec-h rv">
       <div class="sec-k" data-i18n="arch.k">结构</div>
       <h2 data-i18n="arch.h2">数据只有一份</h2>
-      <p class="sec-d" data-i18n="arch.d">门禁、路由、水电表、住户手机与监控都接在同一个后台。主机可以是一台电脑、一台 NAS 或一台云服务器。</p>
+      <p class="sec-d" data-i18n="arch.d">门禁、路由、水电表、住户手机与监控都接在同一个后台。主机可以是一台小主机、虚拟机或云服务器。</p>
     </div>
     <div class="arch rv">
       <div class="layer">
@@ -290,15 +290,15 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
         <div class="os-head">
           <span class="os-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4"/><path d="M7 9l2.5 2L7 13"/><path d="M12 13h4"/></svg></span>
           <div>
-            <h3 data-i18n="dep.lin.t">Linux / NAS</h3>
-            <p data-i18n="dep.lin.d">服务器、家里 NAS 用一条命令装好，也支持 Docker Compose。</p>
+            <h3 data-i18n="dep.lin.t">Linux / 小主机</h3>
+            <p data-i18n="dep.lin.d">服务器或 Linux 小主机用一条命令装好，由 systemd 托管。</p>
           </div>
         </div>
         <div class="cmd-box">
           <code id="installCmd">curl -fsSL https://souse.dpxon.com/install.sh | sudo sh</code>
           <button class="copy-btn" data-copy="#installCmd" data-i18n="dep.lin.copy">复制</button>
         </div>
-        <p class="os-note" data-i18n="dep.lin.n">Docker：docker compose up -d（详见下载页）。</p>
+        <p class="os-note" data-i18n="dep.lin.n">服务：systemctl status souse（详见下载页）。</p>
       </div>
     </div>
 
@@ -324,7 +324,7 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
           <tr><th></th><th data-i18n="cmp.c1">Excel + 微信群</th><th data-i18n="cmp.c2">公寓 SaaS</th><th data-i18n="cmp.c3">Souse</th></tr>
         </thead>
         <tbody>
-          <tr><th data-i18n="cmp.r1">费用</th><td data-i18n="cmp.r1c1">免费，但对账靠人</td><td data-i18n="cmp.r1c2">订阅费，多数绑自家硬件</td><td data-i18n="cmp.r1c3">开源免费，自托管</td></tr>
+          <tr><th data-i18n="cmp.r1">费用</th><td data-i18n="cmp.r1c1">免费，但对账靠人</td><td data-i18n="cmp.r1c2">订阅费，多数绑自家硬件</td><td data-i18n="cmp.r1c3">免费自托管</td></tr>
           <tr><th data-i18n="cmp.r2">欠费处理</th><td data-i18n="cmp.r2c1">人工催缴</td><td data-i18n="cmp.r2c2">断电或锁门（绑硬件）</td><td data-i18n="cmp.r2c3">断网与门禁，用现有路由 + 海康</td></tr>
           <tr><th data-i18n="cmp.r3">住户入口</th><td data-i18n="cmp.r3c1">群里口头通知</td><td data-i18n="cmp.r3c2">装 App 或关注公众号</td><td data-i18n="cmp.r3c3">房间二维码，零安装</td></tr>
           <tr><th data-i18n="cmp.r4">数据与硬件</th><td data-i18n="cmp.r4c1">在自己手里</td><td data-i18n="cmp.r4c2">数据在平台云，硬件绑定</td><td data-i18n="cmp.r4c3">数据在自己的机器上，不卖硬件、不经手租金</td></tr>
@@ -345,7 +345,7 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
     <div class="faq rv">
       <details open>
         <summary data-i18n="faq.q1">收费吗？</summary>
-        <p data-i18n="faq.a1">不收。开源免费，装在自己的机器上，没有订阅费；不卖硬件，也不经手租金。</p>
+        <p data-i18n="faq.a1">不收。免费自托管，装在自己的机器上，没有订阅费；不卖硬件，也不经手租金。</p>
       </details>
       <details>
         <summary data-i18n="faq.q2">需要先买硬件吗？</summary>
@@ -353,7 +353,7 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
       </details>
       <details>
         <summary data-i18n="faq.q3">数据放在哪里？</summary>
-        <p data-i18n="faq.a3">在你自己的机器上：家里的电脑、NAS 或云服务器。系统每 6 小时自动备份一份，平台拿不到你的数据。</p>
+        <p data-i18n="faq.a3">在你自己的机器上：家里的小主机、虚拟机或云服务器。系统每 6 小时自动备份一份，平台拿不到你的数据。</p>
       </details>
       <details>
         <summary data-i18n="faq.q4">住户需要装 App 吗？</summary>
@@ -361,7 +361,7 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
       </details>
       <details>
         <summary data-i18n="faq.q5">怎么部署？升级会丢数据吗？</summary>
-        <p data-i18n-html="faq.a5">Linux 一条命令（<code>install.sh</code>），也可以用 Docker Compose；电脑、NAS、云服务器都行。升级只更换程序版本，数据留在原处，另有每 6 小时的备份兜底。</p>
+        <p data-i18n-html="faq.a5">Linux 一条命令（<code>install.sh</code>），需要 systemd；小主机、虚拟机、云服务器都行。升级只更换程序版本，数据留在原处，另有每 6 小时的备份兜底。</p>
       </details>
     </div>
   </div>
