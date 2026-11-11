@@ -228,8 +228,8 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
       <h1>装在自己机器上，<br><span class="grad">数据不出门</span></h1>
       <p class="hero-sub">一行命令装完，程序、管理台、<b>每 6 小时自动备份</b>、开机自启一次到位；装完直接把管理员密码打给你。</p>
       <div class="hero-meta">
-        <span class="meta"><b>Linux</b> x86_64</span>
-        <span class="meta">systemd 常驻</span>
+        <span class="meta"><b>Linux · macOS · Windows</b></span>
+        <span class="meta">Linux 用 systemd 常驻</span>
         <span class="meta">免 Docker</span>
         <span class="meta">免费自托管</span>
       </div>
@@ -257,7 +257,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
     <div class="sec-h rv">
       <div class="sec-k">Packages</div>
       <h2>各平台安装包</h2>
-      <p class="sec-d">下载后解包即用，含程序、管理台静态资源、抄表识别模型与结算单字体。校验文件一并提供，安装脚本会自动核对。Windows 与 macOS 另有图形安装器，双击即可装，全程不需要命令行。</p>
+      <p class="sec-d">下载后解包即用，含程序、管理台静态资源、抄表识别模型与结算单字体。校验文件一并提供，安装脚本会自动核对。Windows 与 macOS 另有图形安装器，双击即可装，全程不需要命令行（安装包未签名，首次需手动放行）。</p>
     </div>
     <div class="dl-grid" id="grid">
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
@@ -325,9 +325,11 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
       <span class="meta">macOS <b>12+</b>（Intel / Apple Silicon）</span>
     </div>
     <div class="note rv" style="margin-top:18px">
-      <b>Windows / macOS 也有安装包。</b>上表可直接下载二进制压缩包；想双击装、不想碰命令行，用图形安装器：
+      <b>Windows / macOS 也有安装包，但没有签名。</b>上表可直接下载二进制压缩包；想双击装、不想碰命令行，用图形安装器：
       <a href="https://github.com/fuweineng/souse/releases/download/v1.0.3/SouseSetup.exe" download style="color:var(--acc)">Windows 安装器（单文件 exe）</a> ·
       <a href="https://github.com/fuweineng/souse/releases/download/v1.0.3/souse-setup-mac.zip" download style="color:var(--acc)">macOS 安装器（.app）</a>。
+      Windows 首次运行会有 SmartScreen（更多信息 → 仍要运行）；macOS 首次要右键 → 打开，或 <code>xattr -dr com.apple.quarantine &lt;安装目录&gt;</code>。
+      两个桌面版都<b>不含抄表识别（OCR）</b>，也没有开机自启和定时备份——那套依赖 Linux 的 systemd。
       Linux 服务器与小主机仍用一条命令最省事。
     </div>
   </div>
@@ -376,7 +378,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 46px;color:var(--dim);fon
   document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 })();
 
-/* ── 平台清单（只有 Linux x86_64 有产物，其余如实标注） ── */
+/* ── 平台清单（Linux 为主；Windows/macOS 提供未签名安装器） ── */
 const PLATFORMS=[
   {os:'Linux', arch:'x86_64 · 最常见', files:['souse-linux-amd64.tar.gz'], primary:true, svg:'<path d="M12 3.2c2.2 0 3.4 1.7 3.4 4 0 1.6-.6 2.5-.6 3.6 0 1 1.7 2.6 2.6 5 .4 1.1-.2 1.9-1.2 1.9h-1.1c-.6 0-.9-.4-1.4-.4h-3.4c-.5 0-.8.4-1.4.4H8c-1 0-1.6-.8-1.2-1.9.9-2.4 2.6-4 2.6-5 0-1.1-.6-2-.6-3.6 0-2.3 1.2-4 3.2-4Z"/><circle cx="10.6" cy="7.4" r=".7" fill="currentColor" stroke="none"/><circle cx="13.4" cy="7.4" r=".7" fill="currentColor" stroke="none"/>'},
   {os:'Linux', arch:'ARM64', files:['souse-linux-arm64.tar.gz'], primary:false, svg:'<path d="M12 3.2c2.2 0 3.4 1.7 3.4 4 0 1.6-.6 2.5-.6 3.6 0 1 1.7 2.6 2.6 5 .4 1.1-.2 1.9-1.2 1.9h-1.1c-.6 0-.9-.4-1.4-.4h-3.4c-.5 0-.8.4-1.4.4H8c-1 0-1.6-.8-1.2-1.9.9-2.4 2.6-4 2.6-5 0-1.1-.6-2-.6-3.6 0-2.3 1.2-4 3.2-4Z"/><circle cx="10.6" cy="7.4" r=".7" fill="currentColor" stroke="none"/><circle cx="13.4" cy="7.4" r=".7" fill="currentColor" stroke="none"/>'},
@@ -403,7 +405,7 @@ function card(p, assets){
     sha=`<div class="sha">${sum?`<a href="${sum.browser_download_url}" target="_blank" rel="noopener">SHA256 校验文件</a>`:'—'}</div>`;
   }else{
     action=`<div class="soon">尚未发布</div>`;
-    sha=`<div class="sha">本版只提供 Linux x86_64</div>`;
+    sha=`<div class="sha">本版未提供，需要自行编译</div>`;
   }
   el.innerHTML=`
     <div class="dl-top">
