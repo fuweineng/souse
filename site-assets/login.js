@@ -20,7 +20,12 @@
       if (!r.ok) throw new Error(d.message || '账号或密码错误');
       var token = (d.data && d.data.access_token) || d.access_token || '';
       if (!token) throw new Error('登录响应缺少 token');
-      location.href = 'https://cz.neng.page/admin#token=' + encodeURIComponent(token);
+      var d2 = d.data || {};
+      var q = '#token=' + encodeURIComponent(token)
+        + '&uid=' + encodeURIComponent(d2.user_id || '')
+        + '&role=' + encodeURIComponent(d2.role || 'admin')
+        + '&uname=' + encodeURIComponent(d2.username || '');
+      location.href = 'https://cz.neng.page/admin' + q;
     } catch (ex) {
       err.textContent = ex.message || '登录失败，请稍后重试';
     } finally {
