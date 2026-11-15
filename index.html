@@ -92,7 +92,41 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
       <p class="hero-note rv"><a href="playground.html" data-i18n="hero.note">不想注册？先看界面演示（浏览器内模拟，无需登录）→</a></p>
     </div>
 
-    <!-- 产品界面直出 -->
+    <!-- 登录卡片（右侧） -->
+    <div class="login-card rv" id="login">
+      <div class="lc-head">
+        <span class="lc-logo">souse</span>
+        <span class="lc-badge" data-i18n="login.badge">房东工作台</span>
+      </div>
+      <h3 data-i18n="login.title">登录你的工作台</h3>
+      <p class="lc-sub" data-i18n="login.sub">账号由平台开通；登录后管理房间、账单、门禁与水电。</p>
+      <form id="loginForm" autocomplete="on">
+        <label class="lc-field"><span data-i18n="login.user">账号</span>
+          <input name="username" type="text" placeholder="手机号 / 账号" required />
+        </label>
+        <label class="lc-field"><span data-i18n="login.pass">密码</span>
+          <input name="password" type="password" placeholder="请输入密码" required />
+        </label>
+        <button class="btn btn-p lc-btn" type="submit" data-i18n="login.btn">登录 →</button>
+        <p class="lc-err" id="loginErr" role="alert"></p>
+      </form>
+      <div class="lc-foot">
+        <a href="playground.html" data-i18n="login.demo">先看界面演示</a>
+        <a href="#start" data-i18n="login.self">自己部署一套</a>
+      </div>
+    </div>
+  <!-- 集成跑马灯 -->
+  <div class="trust">
+    <div class="marquee">
+      <div class="mq-set"><span>海康门禁</span><span>海康云眸</span><span>爱快路由</span><span>MikroTik</span><span>微信扫码</span><span>大华录像</span><span>云沐水电表</span><span>AI 管家</span></div>
+      <div class="mq-set" aria-hidden="true"><span>海康门禁</span><span>海康云眸</span><span>爱快路由</span><span>MikroTik</span><span>微信扫码</span><span>大华录像</span><span>云沐水电表</span><span>AI 管家</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ 产品界面 ═══════════ -->
+<section class="showcase" id="showcase">
+  <div class="wrap">
     <div class="shot rv">
       <div class="shot-win">
         <div class="win-bar"><i></i><i></i><i></i><span data-i18n="hero.win">souse — 收租工作台 · 片区 12 栋</span></div>
@@ -126,14 +160,8 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
     </div>
   </div>
 
-  <!-- 集成跑马灯 -->
-  <div class="trust">
-    <div class="marquee">
-      <div class="mq-set"><span>海康门禁</span><span>海康云眸</span><span>爱快路由</span><span>MikroTik</span><span>微信扫码</span><span>大华录像</span><span>云沐水电表</span><span>AI 管家</span></div>
-      <div class="mq-set" aria-hidden="true"><span>海康门禁</span><span>海康云眸</span><span>爱快路由</span><span>MikroTik</span><span>微信扫码</span><span>大华录像</span><span>云沐水电表</span><span>AI 管家</span></div>
-    </div>
   </div>
-</header>
+</section>
 
 <!-- ═══════════ 能力 ═══════════ -->
 <section id="features">
@@ -400,5 +428,6 @@ catch(e){document.documentElement.dataset.theme='dark';}})();
 </footer>
 
 <script src="site-assets/app.js"></script>
+<script src="/site-assets/login.js"></script>
 </body>
 </html>
