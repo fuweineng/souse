@@ -8,7 +8,9 @@
     var btn = f.querySelector('button[type=submit]');
     btn.disabled = true;
     try {
-      var r = await fetch('https://cz.neng.page/api/auth/login', {
+      // 同源（2026-11-16）：官网与应用统一在 https://souse.dpxon.com，
+      // 不再跨域打 cz.neng.page（该域名已改为 301 跳转入口）。
+      var r = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -25,7 +27,7 @@
         + '&uid=' + encodeURIComponent(d2.user_id || '')
         + '&role=' + encodeURIComponent(d2.role || 'admin')
         + '&uname=' + encodeURIComponent(d2.username || '');
-      location.href = 'https://cz.neng.page/admin' + q;
+      location.href = '/admin' + q;
     } catch (ex) {
       err.textContent = ex.message || '登录失败，请稍后重试';
     } finally {

@@ -67,4 +67,10 @@ sqlite3 "$DB" "UPDATE users SET status='disabled' WHERE username='trial';"
 DNS：Cloudflare CNAME `cz.dpxon.com` → `b995ad32-d007-4dff-9e7c-f4aede454e36.cfargotunnel.com`（proxied）。
 `cz.dpxon.com` 与 `cz.neng.page` 是同一台源站（`192.168.100.65:8080`，`/api/*` 走 `192.168.100.2:8092`）的两个入口，两边并行，互不跳转。
 
+> 2026-11-16（入口收敛）：正版入口统一为 **https://souse.dpxon.com/**（官网落地页 + 应用同域）。
+> `cz.neng.page`（VPS 154.94.237.100 的 nginx）已改为**只作跳转**：页面/静态 301 → `https://souse.dpxon.com`（保留路径与查询串），
+> 仅 `/healthz`、`/api/`、`/mcp` 仍直连 `127.0.0.1:8080`，供监控探针、HLS 播放器与脚本客户端使用。
+> 官网登录表单 `site-assets/login.js` 已改为同源 `/api/auth/login` + `/admin`，不再跨域打 `cz.neng.page`。
+> 回滚：`/root/nginx-bak/cz-nengpage.bak-redirect-20261116-150611`（VPS）→ 还原 `sites-available/cz-nengpage` 并 `systemctl reload nginx`。
+
 注意 Cloudflare Universal SSL **只覆盖一级子域**，所以入口用 `cz.dpxon.com` 而不是 `app.souse.dpxon.com`。
