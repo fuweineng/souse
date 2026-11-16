@@ -68,6 +68,7 @@ sqlite3 "$DB" "UPDATE users SET status='disabled' WHERE username='trial';"
 
 DNS：Cloudflare CNAME `cz.dpxon.com` → `b995ad32-d007-4dff-9e7c-f4aede454e36.cfargotunnel.com`（proxied）。
 `cz.dpxon.com` 与 `cz.neng.page` 是同一台源站（`192.168.100.65:8080`，`/api/*` 走 `192.168.100.2:8092`）的两个入口，两边并行，互不跳转。
+（↑ 2026-11-16 起这条**不再成立**：两者都已 301 到 `https://souse.dpxon.com`，见下方收敛说明。）
 
 > 2026-11-16（入口收敛）：正版入口统一为 **https://souse.dpxon.com/**（官网落地页 + 应用同域）。
 > `cz.neng.page` 与 `cz.dpxon.com`（VPS 154.94.237.100 的 nginx）都已改为**只作跳转**：页面/静态 301 → `https://souse.dpxon.com`（保留路径与查询串），
