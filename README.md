@@ -70,7 +70,11 @@ DNS：Cloudflare CNAME `cz.dpxon.com` → `b995ad32-d007-4dff-9e7c-f4aede454e36.
 `cz.dpxon.com` 与 `cz.neng.page` 是同一台源站（`192.168.100.65:8080`，`/api/*` 走 `192.168.100.2:8092`）的两个入口，两边并行，互不跳转。
 （↑ 2026-11-16 起这条**不再成立**：两者都已 301 到 `https://souse.dpxon.com`，见下方收敛说明。）
 
-> 2026-11-16（入口收敛）：正版入口统一为 **https://souse.dpxon.com/**（官网落地页 + 应用同域）。
+> 2026-11-16（入口收敛）：正版入口统一为 **https://souse.dpxon.com/**，本域只当**应用入口**：
+> `/` 直接 `302 /login`（首页文案不再挂在这里），`robots.txt` 全站 Disallow，`sitemap.xml` 301 到 `https://dpxon.com/sitemap.xml`；
+> 仍保留的静态文件只有安装/文档类（`install.sh`、`install.ps1`、`install-mac.sh`、`downloads.html`、`agent.html`、`site-assets/`）。
+> 对外的产品介绍已迁到 **https://dpxon.com/**（展示页，souse 是其中一个项目），数据源 `/root/hub/projects.json` 的 `showcase` 段，生成脚本 `/root/hub/showcase.py`。
+>
 > `cz.neng.page` 与 `cz.dpxon.com`（VPS 154.94.237.100 的 nginx）都已改为**只作跳转**：页面/静态 301 → `https://souse.dpxon.com`（保留路径与查询串），
 > 仅 `/healthz`、`/api/`、`/mcp`（`cz.dpxon.com` 另有 `/nginx-health`）仍直连 `127.0.0.1:8080`，供监控探针、HLS 播放器、脚本与 MCP 客户端使用
 > （MCP 是 POST，跟随 301 会丢 body，所以必须保留直连）。
