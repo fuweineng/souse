@@ -27,10 +27,12 @@ gh release create v1.0.1 souse-linux-amd64.tar.gz{,.sha256} -R fuweineng/souse -
 `install.sh` 的约定：装在 `/opt/souse`，systemd 单元 `souse.service`，配置 `/opt/souse/config.yaml`，数据 `/opt/souse/data/db/souse.db`，备份定时器 `souse-backup.timer`（每 6 小时，保留 30 天），管理命令 `sousectl`。
 ## 在线试用入口
 
-官网的「在线试用」按钮统一指向 **https://cz.dpxon.com/login**（正式后台 `:8080`）。
+官网的「在线试用」按钮统一指向 **https://souse.dpxon.com/login**（正式后台 `:8080`，官网与应用同域）。
 
 > 2026-11-11：正式入口从 `app.dpxon.com` 改为 `cz.dpxon.com`，与住户在用的 `cz.neng.page` 同源并行；
 > `app.dpxon.com` 已停用（CT203 Caddy 返回 410），不要再往任何页面写它。
+>
+> 2026-11-16：以上两个 `cz.*` 入口**都已收掉**，统一 301 到 `https://souse.dpxon.com`（详见文末「入口收敛」）。
 
 - 试用账号：`trial` / `souse2026`
 - 账号范围：仅「试用演示楼」（building `DEMO`）——6 间房（4 在租 / 2 空置）+ 4 位演示住户 + 7 笔演示账单，看不到任何真实房源
@@ -68,9 +70,11 @@ DNS：Cloudflare CNAME `cz.dpxon.com` → `b995ad32-d007-4dff-9e7c-f4aede454e36.
 `cz.dpxon.com` 与 `cz.neng.page` 是同一台源站（`192.168.100.65:8080`，`/api/*` 走 `192.168.100.2:8092`）的两个入口，两边并行，互不跳转。
 
 > 2026-11-16（入口收敛）：正版入口统一为 **https://souse.dpxon.com/**（官网落地页 + 应用同域）。
-> `cz.neng.page`（VPS 154.94.237.100 的 nginx）已改为**只作跳转**：页面/静态 301 → `https://souse.dpxon.com`（保留路径与查询串），
-> 仅 `/healthz`、`/api/`、`/mcp` 仍直连 `127.0.0.1:8080`，供监控探针、HLS 播放器与脚本客户端使用。
+> `cz.neng.page` 与 `cz.dpxon.com`（VPS 154.94.237.100 的 nginx）都已改为**只作跳转**：页面/静态 301 → `https://souse.dpxon.com`（保留路径与查询串），
+> 仅 `/healthz`、`/api/`、`/mcp`（`cz.dpxon.com` 另有 `/nginx-health`）仍直连 `127.0.0.1:8080`，供监控探针、HLS 播放器、脚本与 MCP 客户端使用
+> （MCP 是 POST，跟随 301 会丢 body，所以必须保留直连）。
 > 官网登录表单 `site-assets/login.js` 已改为同源 `/api/auth/login` + `/admin`，不再跨域打 `cz.neng.page`。
-> 回滚：`/root/nginx-bak/cz-nengpage.bak-redirect-20261116-150611`（VPS）→ 还原 `sites-available/cz-nengpage` 并 `systemctl reload nginx`。
+> 回滚点（VPS `/root/nginx-bak/`）：`cz-nengpage.bak-redirect-20261116-150611`、`cz-dpxon.bak-redirect-20261116-155151`
+> → 还原对应 `sites-available/*` 并 `systemctl reload nginx`。
 
 注意 Cloudflare Universal SSL **只覆盖一级子域**，所以入口用 `cz.dpxon.com` 而不是 `app.souse.dpxon.com`。
